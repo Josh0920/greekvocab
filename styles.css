@@ -935,6 +935,28 @@ main {
     margin-top: 0.25rem;
     margin-bottom: 0.5rem;
 }
+.dict-form-match {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--gold-light);
+    border-radius: var(--radius);
+    border: 1px solid #e8dfc8;
+}
+.dict-form-greek {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+.dict-form-tense {
+    font-size: 0.75rem;
+    color: var(--text-3);
+    margin-left: auto;
+}
 .dict-conjugations {
     margin-top: 0.75rem;
     border-top: 1px solid var(--border-light);

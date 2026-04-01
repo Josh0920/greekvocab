@@ -1146,6 +1146,50 @@
         document.getElementById("dict-results").innerHTML = '<p class="dict-hint">Start typing to search across all categories and verb conjugations</p>';
     }
 
+    // Build English translations for a conjugated verb form
+    // Returns array of variants for search matching
+    // e.g., meaning="I am, exist", personIdx=2 → ["he/she/it is", "he is", "she is", "it is"]
+    function verbEnglishVariants(meaning, personIdx) {
+        const pronounSets = [
+            ["I"],                          // 1sg
+            ["you"],                        // 2sg
+            ["he/she/it", "he", "she", "it"], // 3sg
+            ["we"],                         // 1pl
+            ["you", "you all"],             // 2pl
+            ["they"],                       // 3pl
+        ];
+        const pronouns = pronounSets[personIdx];
+        const primaryPronoun = pronounSets[personIdx][0];
+
+        // Get first meaning before semicolons/commas for cleaner display
+        const firstMeaning = meaning.replace(/;.*$/, "").replace(/,.*$/, "").trim();
+        const raw = firstMeaning;
+
+        // Handle "I am" verbs specially
+        if (raw.toLowerCase().startsWith("i am")) {
+            const rest = raw.substring(4).trim();
+            const results = [];
+            for (const p of pronouns) {
+                if (p === "I") results.push("I am" + (rest ? " " + rest : ""));
+                else if (p === "he/she/it" || p === "he" || p === "she" || p === "it")
+                    results.push(p + " is" + (rest ? " " + rest : ""));
+                else results.push(p + " are" + (rest ? " " + rest : ""));
+            }
+            return results;
+        }
+
+        // Standard: strip "I " prefix and prepend each pronoun
+        let stem = raw;
+        if (raw.toLowerCase().startsWith("i ")) {
+            stem = raw.substring(2);
+        }
+        return pronouns.map(p => p + " " + stem);
+    }
+
+    function verbEnglishDisplay(meaning, personIdx) {
+        return verbEnglishVariants(meaning, personIdx)[0];
+    }
+
     function searchDictionary(query) {
         const results = document.getElementById("dict-results");
         if (!query) {
@@ -1170,7 +1214,7 @@
             });
         }
 
-        // Search verb lexicon — match lexical form, meaning, and ALL conjugated forms
+        // Search verb lexicon — match lexical form, meaning, conjugated forms, AND English translations
         if (typeof VERB_LEXICON !== "undefined") {
             for (const verbKey in VERB_LEXICON) {
                 const verb = VERB_LEXICON[verbKey];
@@ -1179,45 +1223,49 @@
                 let formMatch = false;
                 let matchedInForm = null;
 
-                // Check conjugated forms
-                if (verb.indicative) {
-                    for (const tense in verb.indicative) {
-                        for (const form of verb.indicative[tense]) {
-                            if (form !== "--" && norm(form).includes(q)) {
+                // Helper: check a conjugation group (indicative or subjunctive)
+                const searchGroup = (group, label) => {
+                    if (formMatch || !group) return;
+                    for (const tense in group) {
+                        const forms = group[tense];
+                        for (let i = 0; i < forms.length; i++) {
+                            if (forms[i] === "--") continue;
+                            // Match Greek form
+                            if (norm(forms[i]).includes(q)) {
                                 formMatch = true;
-                                matchedInForm = { tense, form };
-                                break;
+                                matchedInForm = { tense, form: forms[i], personIdx: i, english: verbEnglishDisplay(verb.meaning, i) };
+                                return;
+                            }
+                            // Match English translation (e.g., "he is", "you die")
+                            const engVariants = verbEnglishVariants(verb.meaning, i);
+                            for (const eng of engVariants) {
+                                if (norm(eng).includes(q)) {
+                                    formMatch = true;
+                                    matchedInForm = { tense, form: forms[i], personIdx: i, english: verbEnglishDisplay(verb.meaning, i) };
+                                    return;
+                                }
                             }
                         }
-                        if (formMatch) break;
                     }
-                }
-                if (!formMatch && verb.subjunctive) {
-                    for (const tense in verb.subjunctive) {
-                        for (const form of verb.subjunctive[tense]) {
-                            if (form !== "--" && norm(form).includes(q)) {
-                                formMatch = true;
-                                matchedInForm = { tense, form };
-                                break;
-                            }
-                        }
-                        if (formMatch) break;
-                    }
-                }
+                };
+
+                searchGroup(verb.indicative, "indicative");
+                searchGroup(verb.subjunctive, "subjunctive");
+
+                // Check infinitives
                 if (!formMatch && verb.infinitives) {
                     for (const infType in verb.infinitives) {
-                        if (verb.infinitives[infType] !== "--" && norm(verb.infinitives[infType]).includes(q)) {
+                        const inf = verb.infinitives[infType];
+                        if (inf !== "--" && norm(inf).includes(q)) {
                             formMatch = true;
-                            matchedInForm = { tense: "Infinitives", form: verb.infinitives[infType] };
+                            matchedInForm = { tense: "Infinitives", form: inf, english: "to " + verb.meaning.replace(/^I /, "").replace(/;.*$/, "").trim() };
                             break;
                         }
                     }
                 }
 
                 if (lexN.includes(q) || meaningN.includes(q) || formMatch) {
-                    // Avoid duplicating if already found as a vocab card
-                    const isDupe = matches.some(m => m.type === "card" && norm(m.card.term) === lexN);
-                    matches.push({ type: "verb", verbKey, verb, formMatch: matchedInForm, isDupe });
+                    matches.push({ type: "verb", verbKey, verb, formMatch: matchedInForm });
                 }
             }
         }
@@ -1226,6 +1274,13 @@
             results.innerHTML = '<p class="dict-empty">No results found</p>';
             return;
         }
+
+        // Sort: exact form matches first, then lexical matches
+        matches.sort((a, b) => {
+            const aExact = a.formMatch ? 0 : 1;
+            const bExact = b.formMatch ? 0 : 1;
+            return aExact - bExact;
+        });
 
         // Limit to 50 results
         const shown = matches.slice(0, 50);
@@ -1264,7 +1319,9 @@
             html += `<div class="dict-verb-note">${escapeHTML(v.note)}</div>`;
         }
         if (m.formMatch) {
-            html += `<div class="dict-notes">Matched form: <strong>${escapeHTML(m.formMatch.form)}</strong> (${escapeHTML(m.formMatch.tense)})</div>`;
+            const fm = m.formMatch;
+            const engText = fm.english ? ` — "${escapeHTML(fm.english)}"` : "";
+            html += `<div class="dict-form-match"><span class="dict-form-greek">${escapeHTML(fm.form)}</span>${engText}<span class="dict-form-tense">${escapeHTML(fm.tense)}</span></div>`;
         }
         // Expandable conjugation tables
         html += `<details class="dict-conjugations"><summary>View conjugations</summary><div class="dict-conj-grid">`;

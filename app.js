@@ -1146,48 +1146,110 @@
         document.getElementById("dict-results").innerHTML = '<p class="dict-hint">Start typing to search across all categories and verb conjugations</p>';
     }
 
-    // Build English translations for a conjugated verb form
-    // Returns array of variants for search matching
-    // e.g., meaning="I am, exist", personIdx=2 → ["he/she/it is", "he is", "she is", "it is"]
-    function verbEnglishVariants(meaning, personIdx) {
+    // Build English translations for a conjugated verb form, aware of tense/voice
+    // tense is optional — when omitted, gives present active translation (for search matching)
+    function verbEnglishVariants(meaning, personIdx, tense) {
         const pronounSets = [
-            ["I"],                          // 1sg
-            ["you"],                        // 2sg
+            ["I"],                            // 1sg
+            ["you"],                          // 2sg
             ["he/she/it", "he", "she", "it"], // 3sg
-            ["we"],                         // 1pl
-            ["you", "you all"],             // 2pl
-            ["they"],                       // 3pl
+            ["we"],                           // 1pl
+            ["you", "you all"],               // 2pl
+            ["they"],                         // 3pl
         ];
         const pronouns = pronounSets[personIdx];
-        const primaryPronoun = pronounSets[personIdx][0];
 
-        // Get first meaning before semicolons/commas for cleaner display
+        // Get first meaning word/phrase — strip "I " prefix
         const firstMeaning = meaning.replace(/;.*$/, "").replace(/,.*$/, "").trim();
-        const raw = firstMeaning;
+        let verb = firstMeaning;
+        if (verb.toLowerCase().startsWith("i ")) verb = verb.substring(2);
 
-        // Handle "I am" verbs specially
-        if (raw.toLowerCase().startsWith("i am")) {
-            const rest = raw.substring(4).trim();
-            const results = [];
-            for (const p of pronouns) {
-                if (p === "I") results.push("I am" + (rest ? " " + rest : ""));
-                else if (p === "he/she/it" || p === "he" || p === "she" || p === "it")
-                    results.push(p + " is" + (rest ? " " + rest : ""));
-                else results.push(p + " are" + (rest ? " " + rest : ""));
-            }
-            return results;
-        }
+        // Detect "am" verbs (e.g. "I am, exist" → verb = "am, exist")
+        const isBeVerb = verb.toLowerCase().startsWith("am");
 
-        // Standard: strip "I " prefix and prepend each pronoun
-        let stem = raw;
-        if (raw.toLowerCase().startsWith("i ")) {
-            stem = raw.substring(2);
-        }
-        return pronouns.map(p => p + " " + stem);
+        // Build translation for each pronoun variant
+        return pronouns.map(p => buildTenseTranslation(p, verb, tense, isBeVerb, personIdx));
     }
 
-    function verbEnglishDisplay(meaning, personIdx) {
-        return verbEnglishVariants(meaning, personIdx)[0];
+    function buildTenseTranslation(pronoun, verb, tense, isBeVerb, personIdx) {
+        const t = (tense || "").toLowerCase();
+
+        // Helper: conjugate "be" for person
+        const bePresent = () => {
+            if (pronoun === "I") return "am";
+            if (pronoun === "he/she/it" || pronoun === "he" || pronoun === "she" || pronoun === "it") return "is";
+            return "are";
+        };
+        const bePast = () => (pronoun === "I" || pronoun === "he/she/it" || pronoun === "he" || pronoun === "she" || pronoun === "it") ? "was" : "were";
+
+        // For "be" verbs (εἰμί etc.), the verb IS the be-verb
+        if (isBeVerb) {
+            const rest = verb.substring(2).trim(); // after "am"
+            if (t.includes("present") && !t.includes("subjunctive")) return pronoun + " " + bePresent() + (rest ? " " + rest : "");
+            if (t.includes("future")) return pronoun + " will be" + (rest ? " " + rest : "");
+            if (t.includes("imperfect")) return pronoun + " " + bePast() + (rest ? " " + rest : "");
+            if (t.includes("aorist") && !t.includes("subjunctive")) return pronoun + " " + bePast() + (rest ? " " + rest : "");
+            if (t.includes("perfect")) return pronoun + " " + (pronoun === "I" || pronoun === "we" || pronoun === "you" || pronoun === "you all" || pronoun === "they" ? "have" : "has") + " been" + (rest ? " " + rest : "");
+            if (t.includes("subjunctive")) return pronoun + " may be" + (rest ? " " + rest : "");
+            return pronoun + " " + bePresent() + (rest ? " " + rest : "");
+        }
+
+        const hasHave = () => (pronoun === "he/she/it" || pronoun === "he" || pronoun === "she" || pronoun === "it") ? "has" : "have";
+        const isMidPass = t.includes("middle/passive") || t.includes("mid/pass");
+        const isPassive = t.includes("passive") && !isMidPass;
+        const isMiddle = t.includes("middle") && !isMidPass && !isPassive;
+
+        // For mid/pass tenses, build BOTH translations
+        if (isMidPass) {
+            const mid = buildVoiceTranslation(pronoun, verb, t, "middle", bePresent, bePast, hasHave);
+            const pass = buildVoiceTranslation(pronoun, verb, t, "passive", bePresent, bePast, hasHave);
+            return mid + " / " + pass;
+        }
+        if (isPassive) return buildVoiceTranslation(pronoun, verb, t, "passive", bePresent, bePast, hasHave);
+        if (isMiddle) return buildVoiceTranslation(pronoun, verb, t, "middle", bePresent, bePast, hasHave);
+        return buildVoiceTranslation(pronoun, verb, t, "active", bePresent, bePast, hasHave);
+    }
+
+    function buildVoiceTranslation(pronoun, verb, t, voice, bePresent, bePast, hasHave) {
+        const isPass = voice === "passive";
+        const isMid = voice === "middle";
+        const voiceTag = isMid ? " (mid.)" : isPass ? " (pass.)" : "";
+
+        if (t.includes("present") && !t.includes("subjunctive")) {
+            if (isPass) return pronoun + " " + bePresent() + " " + verb + "ed" + voiceTag;
+            if (isMid) return pronoun + " " + verb + " (mid.)";
+            return pronoun + " " + verb;
+        }
+        if (t.includes("future")) {
+            if (isPass) return pronoun + " will be " + verb + "ed" + voiceTag;
+            if (isMid) return pronoun + " will " + verb + " (mid.)";
+            return pronoun + " will " + verb;
+        }
+        if (t.includes("imperfect")) {
+            if (isPass) return pronoun + " " + bePast() + " being " + verb + "ed" + voiceTag;
+            if (isMid) return pronoun + " " + bePast() + " " + verb + "ing (mid.)";
+            return pronoun + " " + bePast() + " " + verb + "ing";
+        }
+        if (t.includes("aorist") && !t.includes("subjunctive")) {
+            if (isPass) return pronoun + " " + bePast() + " " + verb + "ed" + voiceTag;
+            if (isMid) return pronoun + " " + verb + "ed (mid.)";
+            return pronoun + " " + verb + "ed";
+        }
+        if (t.includes("perfect")) {
+            if (isPass) return pronoun + " " + hasHave() + " been " + verb + "ed" + voiceTag;
+            if (isMid) return pronoun + " " + hasHave() + " " + verb + "ed (mid.)";
+            return pronoun + " " + hasHave() + " " + verb + "ed";
+        }
+        if (t.includes("subjunctive")) {
+            if (isPass) return pronoun + " may be " + verb + "ed" + voiceTag;
+            if (isMid) return pronoun + " may " + verb + " (mid.)";
+            return pronoun + " may " + verb;
+        }
+        return pronoun + " " + verb;
+    }
+
+    function verbEnglishDisplay(meaning, personIdx, tense) {
+        return verbEnglishVariants(meaning, personIdx, tense)[0];
     }
 
     function searchDictionary(query) {
@@ -1233,15 +1295,15 @@
                             // Match Greek form
                             if (norm(forms[i]).includes(q)) {
                                 formMatch = true;
-                                matchedInForm = { tense, form: forms[i], personIdx: i, english: verbEnglishDisplay(verb.meaning, i) };
+                                matchedInForm = { tense, form: forms[i], personIdx: i, english: verbEnglishDisplay(verb.meaning, i, tense) };
                                 return;
                             }
                             // Match English translation (e.g., "he is", "you die")
-                            const engVariants = verbEnglishVariants(verb.meaning, i);
+                            const engVariants = verbEnglishVariants(verb.meaning, i, tense);
                             for (const eng of engVariants) {
                                 if (norm(eng).includes(q)) {
                                     formMatch = true;
-                                    matchedInForm = { tense, form: forms[i], personIdx: i, english: verbEnglishDisplay(verb.meaning, i) };
+                                    matchedInForm = { tense, form: forms[i], personIdx: i, english: verbEnglishDisplay(verb.meaning, i, tense) };
                                     return;
                                 }
                             }
@@ -1323,7 +1385,7 @@
             const engText = fm.english ? ` — "${escapeHTML(fm.english)}"` : "";
             html += `<div class="dict-form-match"><span class="dict-form-greek">${escapeHTML(fm.form)}</span>${engText}<span class="dict-form-tense">${escapeHTML(fm.tense)}</span></div>`;
         }
-        // Expandable conjugation tables
+        // Expandable conjugation tables with English translations
         html += `<details class="dict-conjugations"><summary>View conjugations</summary><div class="dict-conj-grid">`;
         const personLabels = ["1sg", "2sg", "3sg", "1pl", "2pl", "3pl"];
         if (v.indicative) {
@@ -1332,7 +1394,10 @@
                 if (forms.every(f => f === "--")) continue;
                 html += `<div class="dict-conj-block"><h4>${escapeHTML(tense)}</h4><table>`;
                 forms.forEach((f, i) => {
-                    if (f !== "--") html += `<tr><td>${personLabels[i]}</td><td>${escapeHTML(f)}</td></tr>`;
+                    if (f !== "--") {
+                        const eng = verbEnglishDisplay(v.meaning, i, tense);
+                        html += `<tr><td>${personLabels[i]}</td><td>${escapeHTML(f)} <span class="dict-eng">(${escapeHTML(eng)})</span></td></tr>`;
+                    }
                 });
                 html += `</table></div>`;
             }
@@ -1343,7 +1408,10 @@
                 if (forms.every(f => f === "--")) continue;
                 html += `<div class="dict-conj-block"><h4>${escapeHTML(tense)}</h4><table>`;
                 forms.forEach((f, i) => {
-                    if (f !== "--") html += `<tr><td>${personLabels[i]}</td><td>${escapeHTML(f)}</td></tr>`;
+                    if (f !== "--") {
+                        const eng = verbEnglishDisplay(v.meaning, i, tense);
+                        html += `<tr><td>${personLabels[i]}</td><td>${escapeHTML(f)} <span class="dict-eng">(${escapeHTML(eng)})</span></td></tr>`;
+                    }
                 });
                 html += `</table></div>`;
             }
@@ -1351,9 +1419,10 @@
         if (v.infinitives) {
             const infEntries = Object.entries(v.infinitives).filter(([,f]) => f !== "--");
             if (infEntries.length > 0) {
+                const infEng = "to " + v.meaning.replace(/^I /, "").replace(/;.*$/, "").replace(/,.*$/, "").trim();
                 html += `<div class="dict-conj-block"><h4>Infinitives</h4><table>`;
                 infEntries.forEach(([type, form]) => {
-                    html += `<tr><td>${escapeHTML(type)}</td><td>${escapeHTML(form)}</td></tr>`;
+                    html += `<tr><td>${escapeHTML(type)}</td><td>${escapeHTML(form)} <span class="dict-eng">(${escapeHTML(infEng)})</span></td></tr>`;
                 });
                 html += `</table></div>`;
             }

@@ -1003,6 +1003,12 @@ main {
     width: 55px;
 }
 .dict-conj-block tr:last-child td { border-bottom: none; }
+.dict-eng {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    color: var(--text-3);
+    font-style: italic;
+}
 .dict-empty {
     text-align: center;
     color: var(--text-3);

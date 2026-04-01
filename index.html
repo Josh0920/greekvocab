@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
     <div class="app-shell">
@@ -16,6 +16,7 @@
                 <h1 class="logo">Koine Greek</h1>
                 <nav id="main-nav">
                     <button class="nav-btn active" data-view="home">Study</button>
+                    <button class="nav-btn" data-view="dictionary">Dictionary</button>
                     <button class="nav-btn" data-view="manage">Manage</button>
                 </nav>
             </div>
@@ -79,6 +80,18 @@
                         <div id="card-list" class="card-list"></div>
                     </div>
                 </div>
+            </div>
+
+            <!-- DICTIONARY -->
+            <div id="dictionary-view" class="view">
+                <div class="section-header">
+                    <h2>Dictionary</h2>
+                    <p class="section-sub">Search in Greek or English</p>
+                </div>
+                <div class="dict-search-wrap">
+                    <input type="text" id="dict-search" class="dict-search-input" placeholder="Type Greek or English (e.g. ἐστιν or &quot;he is&quot;)..." autocomplete="off">
+                </div>
+                <div id="dict-results" class="dict-results"></div>
             </div>
 
             <!-- MODE SELECT -->
@@ -299,6 +312,6 @@
 
     <script src="data.js?v=2"></script>
     <script src="verb-lexicon.js?v=2"></script>
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>

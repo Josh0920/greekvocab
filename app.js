@@ -69,6 +69,7 @@
         bindTrueFalse();
         bindResults();
         bindParadigm();
+        bindDictionary();
     }
 
     // --- Data ---
@@ -1128,6 +1129,180 @@
         reader.onload = ev => { document.getElementById("bulk-import").value = ev.target.result; };
         reader.readAsText(file);
         e.target.value = "";
+    }
+
+    // ============================================================
+    // DICTIONARY
+    // ============================================================
+    function bindDictionary() {
+        const input = document.getElementById("dict-search");
+        if (!input) return;
+        let debounce = null;
+        input.addEventListener("input", () => {
+            clearTimeout(debounce);
+            debounce = setTimeout(() => searchDictionary(input.value.trim()), 150);
+        });
+        // Show hint on load
+        document.getElementById("dict-results").innerHTML = '<p class="dict-hint">Start typing to search across all categories and verb conjugations</p>';
+    }
+
+    function searchDictionary(query) {
+        const results = document.getElementById("dict-results");
+        if (!query) {
+            results.innerHTML = '<p class="dict-hint">Start typing to search across all categories and verb conjugations</p>';
+            return;
+        }
+
+        const norm = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/^-+/, "").trim();
+        const q = norm(query);
+        const matches = [];
+
+        // Search all category cards
+        for (const catKey in data) {
+            const cat = data[catKey];
+            cat.cards.forEach(card => {
+                const termN = norm(card.term);
+                const defN = norm(card.definition);
+                const notesN = norm(card.notes || "");
+                if (termN.includes(q) || defN.includes(q) || notesN.includes(q)) {
+                    matches.push({ type: "card", category: cat.name, catKey, card });
+                }
+            });
+        }
+
+        // Search verb lexicon — match lexical form, meaning, and ALL conjugated forms
+        if (typeof VERB_LEXICON !== "undefined") {
+            for (const verbKey in VERB_LEXICON) {
+                const verb = VERB_LEXICON[verbKey];
+                const lexN = norm(verbKey);
+                const meaningN = norm(verb.meaning);
+                let formMatch = false;
+                let matchedInForm = null;
+
+                // Check conjugated forms
+                if (verb.indicative) {
+                    for (const tense in verb.indicative) {
+                        for (const form of verb.indicative[tense]) {
+                            if (form !== "--" && norm(form).includes(q)) {
+                                formMatch = true;
+                                matchedInForm = { tense, form };
+                                break;
+                            }
+                        }
+                        if (formMatch) break;
+                    }
+                }
+                if (!formMatch && verb.subjunctive) {
+                    for (const tense in verb.subjunctive) {
+                        for (const form of verb.subjunctive[tense]) {
+                            if (form !== "--" && norm(form).includes(q)) {
+                                formMatch = true;
+                                matchedInForm = { tense, form };
+                                break;
+                            }
+                        }
+                        if (formMatch) break;
+                    }
+                }
+                if (!formMatch && verb.infinitives) {
+                    for (const infType in verb.infinitives) {
+                        if (verb.infinitives[infType] !== "--" && norm(verb.infinitives[infType]).includes(q)) {
+                            formMatch = true;
+                            matchedInForm = { tense: "Infinitives", form: verb.infinitives[infType] };
+                            break;
+                        }
+                    }
+                }
+
+                if (lexN.includes(q) || meaningN.includes(q) || formMatch) {
+                    // Avoid duplicating if already found as a vocab card
+                    const isDupe = matches.some(m => m.type === "card" && norm(m.card.term) === lexN);
+                    matches.push({ type: "verb", verbKey, verb, formMatch: matchedInForm, isDupe });
+                }
+            }
+        }
+
+        if (matches.length === 0) {
+            results.innerHTML = '<p class="dict-empty">No results found</p>';
+            return;
+        }
+
+        // Limit to 50 results
+        const shown = matches.slice(0, 50);
+        results.innerHTML = shown.map(m => {
+            if (m.type === "card") {
+                return renderDictCard(m);
+            } else {
+                return renderDictVerb(m);
+            }
+        }).join("");
+    }
+
+    function renderDictCard(m) {
+        let html = `<div class="dict-card">
+            <div class="dict-card-header">
+                <span class="dict-term">${escapeHTML(m.card.term)}</span>
+                <span class="dict-category">${escapeHTML(m.category)}</span>
+            </div>
+            <div class="dict-def">${escapeHTML(m.card.definition)}</div>`;
+        if (m.card.notes) {
+            html += `<div class="dict-notes">${escapeHTML(m.card.notes)}</div>`;
+        }
+        html += `</div>`;
+        return html;
+    }
+
+    function renderDictVerb(m) {
+        const v = m.verb;
+        let html = `<div class="dict-card">
+            <div class="dict-card-header">
+                <span class="dict-term">${escapeHTML(m.verbKey)}</span>
+                <span class="dict-category">Verb Lexicon</span>
+            </div>
+            <div class="dict-def">${escapeHTML(v.meaning)}</div>`;
+        if (v.note) {
+            html += `<div class="dict-verb-note">${escapeHTML(v.note)}</div>`;
+        }
+        if (m.formMatch) {
+            html += `<div class="dict-notes">Matched form: <strong>${escapeHTML(m.formMatch.form)}</strong> (${escapeHTML(m.formMatch.tense)})</div>`;
+        }
+        // Expandable conjugation tables
+        html += `<details class="dict-conjugations"><summary>View conjugations</summary><div class="dict-conj-grid">`;
+        const personLabels = ["1sg", "2sg", "3sg", "1pl", "2pl", "3pl"];
+        if (v.indicative) {
+            for (const tense in v.indicative) {
+                const forms = v.indicative[tense];
+                if (forms.every(f => f === "--")) continue;
+                html += `<div class="dict-conj-block"><h4>${escapeHTML(tense)}</h4><table>`;
+                forms.forEach((f, i) => {
+                    if (f !== "--") html += `<tr><td>${personLabels[i]}</td><td>${escapeHTML(f)}</td></tr>`;
+                });
+                html += `</table></div>`;
+            }
+        }
+        if (v.subjunctive) {
+            for (const tense in v.subjunctive) {
+                const forms = v.subjunctive[tense];
+                if (forms.every(f => f === "--")) continue;
+                html += `<div class="dict-conj-block"><h4>${escapeHTML(tense)}</h4><table>`;
+                forms.forEach((f, i) => {
+                    if (f !== "--") html += `<tr><td>${personLabels[i]}</td><td>${escapeHTML(f)}</td></tr>`;
+                });
+                html += `</table></div>`;
+            }
+        }
+        if (v.infinitives) {
+            const infEntries = Object.entries(v.infinitives).filter(([,f]) => f !== "--");
+            if (infEntries.length > 0) {
+                html += `<div class="dict-conj-block"><h4>Infinitives</h4><table>`;
+                infEntries.forEach(([type, form]) => {
+                    html += `<tr><td>${escapeHTML(type)}</td><td>${escapeHTML(form)}</td></tr>`;
+                });
+                html += `</table></div>`;
+            }
+        }
+        html += `</div></details></div>`;
+        return html;
     }
 
     // ============================================================

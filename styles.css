@@ -1009,6 +1009,14 @@ main {
     color: var(--text-3);
     font-style: italic;
 }
+.dict-highlight {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+}
+.dict-highlight td {
+    font-weight: 600;
+    color: var(--accent);
+}
 .dict-empty {
     text-align: center;
     color: var(--text-3);

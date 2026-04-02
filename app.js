@@ -881,7 +881,14 @@
         const fb = document.getElementById("fib-feedback");
         score.total++;
         const normalize = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-        if (normalize(answer) === normalize(correct)) {
+        // Accept exact match OR any individual meaning (split by comma/semicolon)
+        const answerN = normalize(answer);
+        const acceptedForms = [normalize(correct)];
+        correct.split(/[;,]/).forEach(part => {
+            const p = normalize(part);
+            if (p) acceptedForms.push(p);
+        });
+        if (acceptedForms.some(f => f === answerN)) {
             score.correct++;
             fb.textContent = "Correct!";
             fb.className = "feedback correct";
@@ -1168,7 +1175,13 @@
         const isBeVerb = verb.toLowerCase().startsWith("am");
 
         // Build translation for each pronoun variant
-        return pronouns.map(p => buildTenseTranslation(p, verb, tense, isBeVerb, personIdx));
+        const variants = pronouns.map(p => buildTenseTranslation(p, verb, tense, isBeVerb, personIdx));
+        // For subjunctive tenses, also accept "might" in place of "may"
+        if ((tense || "").toLowerCase().includes("subjunctive")) {
+            const mightVariants = variants.map(v => v.replace(/ may /g, " might ").replace(/ may$/, " might"));
+            mightVariants.forEach(mv => { if (!variants.includes(mv)) variants.push(mv); });
+        }
+        return variants;
     }
 
     function buildTenseTranslation(pronoun, verb, tense, isBeVerb, personIdx) {
@@ -1210,38 +1223,97 @@
         return buildVoiceTranslation(pronoun, verb, t, "active", bePresent, bePast, hasHave);
     }
 
+    // Smart English verb forms — handles silent-e, consonant doubling, irregular patterns
+    function pastTense(verb) {
+        const v = verb.toLowerCase();
+        // Common irregular verbs in the lexicon
+        const irregulars = {
+            "loose": "loosed", "have": "had", "hold": "held", "say": "said",
+            "speak": "spoke", "hear": "heard", "see": "saw", "believe": "believed",
+            "love": "loved", "seek": "sought", "call": "called", "fill": "filled",
+            "do": "did", "make": "made", "keep": "kept", "answer": "answered",
+            "come": "came", "go": "went", "give": "gave", "live": "lived",
+            "raise": "raised", "take": "took", "send": "sent", "know": "knew",
+            "judge": "judged", "remain": "remained", "save": "saved", "die": "died",
+            "teach": "taught", "walk": "walked", "follow": "followed", "ask": "asked",
+            "wish": "wished", "throw": "threw", "become": "became", "find": "found",
+            "receive": "received", "pray": "prayed", "depart": "departed", "begin": "began",
+            "write": "wrote", "praise": "praised", "proclaim": "proclaimed", "drink": "drank",
+            "lead": "led", "fear": "feared", "rejoice": "rejoiced", "bear": "bore",
+            "carry": "carried", "bring": "brought", "sit": "sat", "think": "thought",
+            "sow": "sowed", "gather": "gathered", "eat": "ate", "greet": "greeted",
+        };
+        if (irregulars[v]) return irregulars[v];
+        // Rules
+        if (v.endsWith("e")) return verb + "d";
+        if (v.endsWith("y") && !/[aeiou]y$/.test(v)) return verb.slice(0, -1) + "ied";
+        if (/[aeiou][bdgmnpt]$/.test(v) && v.length <= 5) return verb + verb[verb.length - 1] + "ed";
+        return verb + "ed";
+    }
+    function pastParticiple(verb) {
+        const v = verb.toLowerCase();
+        const irregulars = {
+            "loose": "loosed", "have": "had", "hold": "held", "say": "said",
+            "speak": "spoken", "hear": "heard", "see": "seen", "believe": "believed",
+            "love": "loved", "seek": "sought", "call": "called", "fill": "filled",
+            "do": "done", "make": "made", "keep": "kept", "answer": "answered",
+            "come": "come", "go": "gone", "give": "given", "live": "lived",
+            "raise": "raised", "take": "taken", "send": "sent", "know": "known",
+            "judge": "judged", "remain": "remained", "save": "saved", "die": "died",
+            "teach": "taught", "walk": "walked", "follow": "followed", "ask": "asked",
+            "wish": "wished", "throw": "thrown", "become": "become", "find": "found",
+            "receive": "received", "pray": "prayed", "depart": "departed", "begin": "begun",
+            "write": "written", "praise": "praised", "proclaim": "proclaimed", "drink": "drunk",
+            "lead": "led", "fear": "feared", "rejoice": "rejoiced", "bear": "borne",
+            "carry": "carried", "bring": "brought", "sit": "sat", "think": "thought",
+            "sow": "sown", "gather": "gathered", "eat": "eaten", "greet": "greeted",
+        };
+        if (irregulars[v]) return irregulars[v];
+        return pastTense(verb);
+    }
+    function presentParticiple(verb) {
+        const v = verb.toLowerCase();
+        if (v.endsWith("ie")) return verb.slice(0, -2) + "ying";
+        if (v.endsWith("e") && !v.endsWith("ee")) return verb.slice(0, -1) + "ing";
+        if (/[aeiou][bdgmnpt]$/.test(v) && v.length <= 5) return verb + verb[verb.length - 1] + "ing";
+        return verb + "ing";
+    }
+
     function buildVoiceTranslation(pronoun, verb, t, voice, bePresent, bePast, hasHave) {
         const isPass = voice === "passive";
         const isMid = voice === "middle";
         const voiceTag = isMid ? " (mid.)" : isPass ? " (pass.)" : "";
+        const pp = pastParticiple(verb);
+        const pt = pastTense(verb);
+        const ppr = presentParticiple(verb);
 
         if (t.includes("present") && !t.includes("subjunctive")) {
-            if (isPass) return pronoun + " " + bePresent() + " " + verb + "ed" + voiceTag;
+            if (isPass) return pronoun + " " + bePresent() + " " + pp + voiceTag;
             if (isMid) return pronoun + " " + verb + " (mid.)";
             return pronoun + " " + verb;
         }
         if (t.includes("future")) {
-            if (isPass) return pronoun + " will be " + verb + "ed" + voiceTag;
+            if (isPass) return pronoun + " will be " + pp + voiceTag;
             if (isMid) return pronoun + " will " + verb + " (mid.)";
             return pronoun + " will " + verb;
         }
         if (t.includes("imperfect")) {
-            if (isPass) return pronoun + " " + bePast() + " being " + verb + "ed" + voiceTag;
-            if (isMid) return pronoun + " " + bePast() + " " + verb + "ing (mid.)";
-            return pronoun + " " + bePast() + " " + verb + "ing";
+            if (isPass) return pronoun + " " + bePast() + " being " + pp + voiceTag;
+            if (isMid) return pronoun + " " + bePast() + " " + ppr + " (mid.)";
+            return pronoun + " " + bePast() + " " + ppr;
         }
         if (t.includes("aorist") && !t.includes("subjunctive")) {
-            if (isPass) return pronoun + " " + bePast() + " " + verb + "ed" + voiceTag;
-            if (isMid) return pronoun + " " + verb + "ed (mid.)";
-            return pronoun + " " + verb + "ed";
+            if (isPass) return pronoun + " " + bePast() + " " + pp + voiceTag;
+            if (isMid) return pronoun + " " + pt + " (mid.)";
+            return pronoun + " " + pt;
         }
         if (t.includes("perfect")) {
-            if (isPass) return pronoun + " " + hasHave() + " been " + verb + "ed" + voiceTag;
-            if (isMid) return pronoun + " " + hasHave() + " " + verb + "ed (mid.)";
-            return pronoun + " " + hasHave() + " " + verb + "ed";
+            if (isPass) return pronoun + " " + hasHave() + " been " + pp + voiceTag;
+            if (isMid) return pronoun + " " + hasHave() + " " + pp + " (mid.)";
+            return pronoun + " " + hasHave() + " " + pp;
         }
         if (t.includes("subjunctive")) {
-            if (isPass) return pronoun + " may be " + verb + "ed" + voiceTag;
+            if (isPass) return pronoun + " may be " + pp + voiceTag;
             if (isMid) return pronoun + " may " + verb + " (mid.)";
             return pronoun + " may " + verb;
         }
@@ -1388,6 +1460,10 @@
         // Expandable conjugation tables with English translations
         html += `<details class="dict-conjugations"><summary>View conjugations</summary><div class="dict-conj-grid">`;
         const personLabels = ["1sg", "2sg", "3sg", "1pl", "2pl", "3pl"];
+        // Determine which form to highlight (matched form from search)
+        const hlForm = m.formMatch ? m.formMatch.form : null;
+        const hlTense = m.formMatch ? m.formMatch.tense : null;
+
         if (v.indicative) {
             for (const tense in v.indicative) {
                 const forms = v.indicative[tense];
@@ -1396,7 +1472,8 @@
                 forms.forEach((f, i) => {
                     if (f !== "--") {
                         const eng = verbEnglishDisplay(v.meaning, i, tense);
-                        html += `<tr><td>${personLabels[i]}</td><td>${escapeHTML(f)} <span class="dict-eng">(${escapeHTML(eng)})</span></td></tr>`;
+                        const isHL = (f === hlForm && tense === hlTense);
+                        html += `<tr class="${isHL ? "dict-highlight" : ""}"><td>${personLabels[i]}</td><td>${escapeHTML(f)} <span class="dict-eng">(${escapeHTML(eng)})</span></td></tr>`;
                     }
                 });
                 html += `</table></div>`;
@@ -1410,7 +1487,8 @@
                 forms.forEach((f, i) => {
                     if (f !== "--") {
                         const eng = verbEnglishDisplay(v.meaning, i, tense);
-                        html += `<tr><td>${personLabels[i]}</td><td>${escapeHTML(f)} <span class="dict-eng">(${escapeHTML(eng)})</span></td></tr>`;
+                        const isHL = (f === hlForm && tense === hlTense);
+                        html += `<tr class="${isHL ? "dict-highlight" : ""}"><td>${personLabels[i]}</td><td>${escapeHTML(f)} <span class="dict-eng">(${escapeHTML(eng)})</span></td></tr>`;
                     }
                 });
                 html += `</table></div>`;
@@ -1422,7 +1500,8 @@
                 const infEng = "to " + v.meaning.replace(/^I /, "").replace(/;.*$/, "").replace(/,.*$/, "").trim();
                 html += `<div class="dict-conj-block"><h4>Infinitives</h4><table>`;
                 infEntries.forEach(([type, form]) => {
-                    html += `<tr><td>${escapeHTML(type)}</td><td>${escapeHTML(form)} <span class="dict-eng">(${escapeHTML(infEng)})</span></td></tr>`;
+                    const isHL = (form === hlForm && hlTense === "Infinitives");
+                    html += `<tr class="${isHL ? "dict-highlight" : ""}"><td>${escapeHTML(type)}</td><td>${escapeHTML(form)} <span class="dict-eng">(${escapeHTML(infEng)})</span></td></tr>`;
                 });
                 html += `</table></div>`;
             }

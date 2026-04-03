@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=6">
+    <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
     <div class="app-shell">
@@ -127,6 +127,16 @@
                         <span class="mode-label">True / False</span>
                         <span class="mode-desc">Judge the pairing</span>
                     </button>
+                </div>
+                <div id="chapter-filter" class="chapter-filter hidden">
+                    <div class="chapter-filter-header">
+                        <h3>Filter by Chapter</h3>
+                        <div class="chapter-filter-actions">
+                            <button id="ch-select-all" class="btn btn-outline btn-sm">All</button>
+                            <button id="ch-select-none" class="btn btn-outline btn-sm">None</button>
+                        </div>
+                    </div>
+                    <div id="chapter-chips" class="chapter-chips"></div>
                 </div>
                 <div class="study-opts">
                     <label><input type="checkbox" id="opt-shuffle" checked> Shuffle</label>
@@ -310,8 +320,8 @@
         </main>
     </div>
 
-    <script src="data.js?v=2"></script>
+    <script src="data.js?v=3"></script>
     <script src="verb-lexicon.js?v=3"></script>
-    <script src="app.js?v=10"></script>
+    <script src="app.js?v=11"></script>
 </body>
 </html>

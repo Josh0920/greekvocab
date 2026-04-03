@@ -32,6 +32,9 @@
     // Stored study options (read from checkboxes before view switch)
     let studyOpts = { shuffle: true, reverse: false, blankAll: false };
 
+    // Chapter filter state
+    let selectedChapters = new Set(); // empty = all chapters (no filter)
+
     // Map base paradigm table titles to canonical tense types
     const BASE_TYPE_MAP = {
         "Present Active Indicative": "Present Active Indicative",
@@ -142,7 +145,123 @@
         let sub = cat.cards.length + " cards";
         if (hasP) sub += ` · ${PARADIGM_TABLES[key].length} paradigm tables`;
         document.getElementById("mode-card-count").textContent = sub;
+        renderChapterFilter(cat.cards);
         showView("mode");
+    }
+
+    // --- Chapter Filter ---
+    function getChaptersForCards(cards) {
+        const chapters = new Set();
+        cards.forEach(c => {
+            const ch = getCardChapter(c);
+            if (ch) chapters.add(ch);
+        });
+        return [...chapters].sort((a, b) => a - b);
+    }
+
+    function renderChapterFilter(cards) {
+        const wrap = document.getElementById("chapter-filter");
+        const chipsEl = document.getElementById("chapter-chips");
+        const chapters = getChaptersForCards(cards);
+
+        if (chapters.length === 0) {
+            wrap.classList.add("hidden");
+            selectedChapters = new Set();
+            return;
+        }
+
+        wrap.classList.remove("hidden");
+        selectedChapters = new Set(); // empty = all
+        chipsEl.innerHTML = "";
+
+        // "No Filter" chip
+        const noFilter = document.createElement("button");
+        noFilter.className = "ch-chip selected";
+        noFilter.dataset.ch = "all";
+        noFilter.innerHTML = "All Chapters";
+        noFilter.addEventListener("click", () => {
+            selectedChapters = new Set();
+            updateChipStates();
+            updateCardCount();
+        });
+        chipsEl.appendChild(noFilter);
+
+        const info = typeof CHAPTER_INFO !== "undefined" ? CHAPTER_INFO : {};
+        chapters.forEach(ch => {
+            const chip = document.createElement("button");
+            chip.className = "ch-chip";
+            chip.dataset.ch = ch;
+            const desc = info[ch] ? ` ${info[ch]}` : "";
+            chip.innerHTML = `<span class="ch-num">Ch ${ch}</span><span class="ch-desc">${escapeHTML(desc)}</span>`;
+            chip.addEventListener("click", () => {
+                if (selectedChapters.has(ch)) {
+                    selectedChapters.delete(ch);
+                } else {
+                    selectedChapters.add(ch);
+                }
+                updateChipStates();
+                updateCardCount();
+            });
+            chipsEl.appendChild(chip);
+        });
+
+        // All / None buttons
+        document.getElementById("ch-select-all").onclick = () => {
+            selectedChapters = new Set(chapters);
+            updateChipStates();
+            updateCardCount();
+        };
+        document.getElementById("ch-select-none").onclick = () => {
+            selectedChapters = new Set();
+            updateChipStates();
+            updateCardCount();
+        };
+    }
+
+    function updateChipStates() {
+        const chips = document.querySelectorAll("#chapter-chips .ch-chip");
+        chips.forEach(chip => {
+            const ch = chip.dataset.ch;
+            if (ch === "all") {
+                chip.classList.toggle("selected", selectedChapters.size === 0);
+            } else {
+                chip.classList.toggle("selected", selectedChapters.has(parseInt(ch)));
+            }
+        });
+    }
+
+    function updateCardCount() {
+        const cat = data[currentCategory];
+        const filtered = filterByChapter(cat.cards);
+        const hasP = PARADIGM_CATS.includes(currentCategory) && PARADIGM_TABLES[currentCategory];
+        let sub = filtered.length + " cards";
+        if (hasP) sub += ` · ${PARADIGM_TABLES[currentCategory].length} paradigm tables`;
+        if (selectedChapters.size > 0) sub += ` (filtered)`;
+        document.getElementById("mode-card-count").textContent = sub;
+    }
+
+    function getCardChapter(card) {
+        // 1. Direct term lookup
+        if (typeof CHAPTER_MAP !== "undefined") {
+            const ch = CHAPTER_MAP[card.term];
+            if (ch) return ch;
+        }
+        // 2. Definition/notes keyword lookup (for paradigm cards)
+        if (typeof DEFINITION_CHAPTER_MAP !== "undefined") {
+            const text = (card.definition || "") + " " + (card.notes || "");
+            for (const rule of DEFINITION_CHAPTER_MAP) {
+                if (text.includes(rule.match)) return rule.chapter;
+            }
+        }
+        return null;
+    }
+
+    function filterByChapter(cards) {
+        if (selectedChapters.size === 0) return cards;
+        return cards.filter(c => {
+            const ch = getCardChapter(c);
+            return ch && selectedChapters.has(ch);
+        });
     }
 
     // --- Modes ---
@@ -159,7 +278,8 @@
         studyOpts.blankAll = document.getElementById("opt-blank-all").checked;
 
         const cat = data[currentCategory];
-        studyCards = [...cat.cards];
+        studyCards = filterByChapter([...cat.cards]);
+        if (studyCards.length === 0) { studyCards = [...cat.cards]; } // fallback if filter empties
         if (studyOpts.shuffle) shuffle(studyCards);
         studyIndex = 0;
         score = { correct: 0, total: 0 };
@@ -890,7 +1010,7 @@
         });
         if (acceptedForms.some(f => f === answerN)) {
             score.correct++;
-            fb.textContent = "Correct!";
+            fb.innerHTML = `Correct! <span class="all-meanings">(${correct})</span>`;
             fb.className = "feedback correct";
         } else {
             fb.innerHTML = `Incorrect. Answer: <strong>${correct}</strong>`;

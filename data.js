@@ -309,6 +309,16 @@ const CATEGORIES = {
             { term: "μέλλω", definition: "I am about to", notes: "verb (+ infinitive)" },
             { term: "δίδωμι", definition: "I give; entrust", notes: "μι verb" },
             { term: "μου (ἐμοῦ)", definition: "my", notes: "genitive personal pronoun" },
+            { term: "συνέρχομαι", definition: "I come together, assemble", notes: "deponent verb" },
+            { term: "υἱοθετέω", definition: "I adopt", notes: "ε-contract verb" },
+            { term: "φίλεω", definition: "I love", notes: "ε-contract verb" },
+            { term: "φαίνω", definition: "I show, appear", notes: "verb" },
+            { term: "φεύγω", definition: "I flee", notes: "verb" },
+            { term: "φρονέω", definition: "I think, have an attitude", notes: "ε-contract verb" },
+            { term: "φωνέω", definition: "I call, cry out", notes: "ε-contract verb" },
+            { term: "ἵστημι", definition: "I stand, set, place", notes: "μι verb" },
+            { term: "ὀνομάζω", definition: "I name, call", notes: "verb" },
+            { term: "ὑποτάσσω", definition: "I submit, subject", notes: "verb" },
         ]
     },
 
@@ -1221,4 +1231,198 @@ const PARADIGM_TABLES = {
             ]
         }
     ]
+};
+
+// ============================================================
+// Chapter Map — which Mounce chapter each vocab term belongs to
+// Extracted from INTRO NOTES; user will fill in later chapters
+// ============================================================
+const CHAPTER_MAP = {
+    // Chapter 4 (Mounce 3-4)
+    "ἄγγελος": 4, "ἀμήν": 4, "ἄνθρωπος": 4, "ἀπόστολος": 4,
+    "Γαλιλαία": 4, "γραφή": 4, "δόξα": 4, "ἐγώ": 4,
+    "ἔσχατος": 4, "ζωή": 4, "θεός": 4, "καί": 4,
+    "καρδία": 4, "κόσμος": 4, "λόγος": 4, "πνεῦμα": 4,
+    "προφήτης": 4, "σάββατον": 4, "φωνή": 4, "Χριστός": 4,
+    // Chapter 6 (Mounce 5-6)
+    "ἀγάπη": 6, "ἄλλος": 6, "αὐτός": 6, "βασιλεία": 6,
+    "δέ": 6, "ἐν": 6, "ἔργον": 6, "καιρός": 6,
+    "νῦν": 6, "ὁ, ἡ, τό": 6, "ὅτι": 6, "οὐ": 6, "ὥρα": 6,
+    // Chapter 7
+    "ἁμαρτία": 7, "ἀρχή": 7, "γάρ": 7, "εἶπεν": 7,
+    "εἰς": 7, "ἐξουσία": 7, "εὐαγγέλιον": 7, "Ἰησοῦς": 7,
+    "κύριος": 7, "μή": 7, "οὐρανός": 7, "οὗτος, αὕτη, τοῦτο": 7,
+    "σύ": 7, "υἱός": 7, "ὥστε": 7,
+    // Chapter 8
+    "ἀλλά": 8, "ἀπό": 8, "διά": 8, "εἰμί": 8,
+    "ἐκ (ἐξ)": 8, "ἡμέρα": 8, "ἦν": 8, "θάλασσα": 8,
+    "θάνατος": 8, "ἵνα": 8, "Ἰωάννης": 8, "λέγω": 8,
+    "μετά": 8, "οἰκία": 8, "οἶκος": 8, "ὄχλος": 8,
+    "παρά": 8, "παραβολή": 8, "πρός": 8, "ὑπό": 8,
+    // Chapter 9
+    "ἀγαθός": 9, "ἀγαπητός": 9, "ἅγιος": 9, "αἰώνιος": 9,
+    "ἀλλήλων": 9, "ἀπεκρίθη": 9, "δοῦλος": 9, "ἐάν": 9,
+    "ἐμός, ἐμή, ἐμόν": 9, "ἐντολή": 9, "καθώς": 9, "κακός": 9,
+    "μου (ἐμοῦ)": 9, "νεκρός": 9, "πιστός": 9, "πονηρός": 9,
+    "πρῶτος": 9, "τρίτος": 9,
+    // Chapter 10
+    "εἰ": 10, "εἰ μή": 10, "εἷς, μία, ἕν": 10, "ἤδη": 10,
+    "ὄνομα, -ατος, τό": 10, "οὐδείς, οὐδεμία, οὐδέν": 10,
+    "πᾶς, πᾶσα, πᾶν": 10, "περί": 10, "σάρξ, σαρκός, ἡ": 10,
+    "σύν": 10, "σῶμα, -ατος, τό": 10, "τέκνον": 10,
+    "τίς, τί": 10, "τις, τι": 10, "Σίμων, -ωνος, ὁ": 10,
+    // Chapter 11
+    "ἀδελφός": 11, "ἄν": 11, "ἀνήρ, ἀνδρός, ὁ": 11,
+    "ἐκκλησία": 11, "ἐλπίς, -ίδος, ἡ": 11, "ἔξω": 11,
+    "ἐπί": 11, "ἡμεῖς": 11, "θέλημα, -ατος, τό": 11,
+    "ἴδε": 11, "ἰδού": 11, "καλός, -ή, -όν": 11,
+    "μήτηρ, μητρός, ἡ": 11, "οὐδέ": 11, "πατήρ, πατρός, ὁ": 11,
+    "πίστις, πίστεως, ἡ": 11, "ὕδωρ, ὕδατος, τό": 11,
+    "ὑμεῖς": 11, "φῶς, φωτός, τό": 11, "χάρις, χάριτος, ἡ": 11,
+    "ὧδε": 11,
+    // Chapter 12
+    "αἰών, αἰῶνος, ὁ": 12, "διδάσκαλος": 12, "εὐθύς": 12,
+    "ἕως": 12, "μαθητής": 12, "μέν": 12,
+    "μηδείς, μηδεμία, μηδέν": 12, "μόνος, -η, -ον": 12,
+    "ὅπως": 12, "ὅσος, -η, -ον": 12, "οὖν": 12,
+    "ὀφθαλμός": 12, "πάλιν": 12, "πούς, ποδός, ὁ": 12, "ὑπέρ": 12,
+    // Chapter 13
+    "γυνή, γυναικός, ἡ": 13, "δικαιοσύνη": 13, "δώδεκα": 13,
+    "ἑαυτοῦ, -ῆς, -οῦ": 13, "ἐκεῖνος, -η, -ο": 13, "ἤ": 13,
+    "κἀγώ": 13, "μακάριος, -ία, -ιον": 13,
+    "μέγας, μεγάλη, μέγα": 13, "πόλις, -εως, ἡ": 13,
+    "πολύς, πολλή, πολύ": 13, "πῶς": 13, "σημεῖον": 13,
+    // Chapter 14
+    "ἀλήθεια": 14, "εἰρήνη": 14, "ἐνώπιον": 14, "ἐπαγγελία": 14,
+    "ἑπτά": 14, "θρόνος": 14, "Ἰερουσαλήμ": 14, "κατά": 14,
+    "κεφαλή": 14, "ὁδός": 14, "ὅς, ἥ, ὅ": 14, "ὅτε": 14,
+    "οὕτως": 14, "πλοῖον": 14, "ῥῆμα, -ατος, τό": 14,
+    "τέ": 14, "χείρ, χειρός, ἡ": 14, "ψυχή": 14,
+    // Chapter 16 (Mounce 15-16)
+    "ἀκούω": 16, "βλέπω": 16, "ἔχω": 16, "λύω": 16,
+    "νόμος": 16, "ὅπου": 16, "πιστεύω": 16, "πρόσωπον": 16,
+    "τότε": 16, "τυφλός, -ή, -όν": 16, "χαρά": 16,
+    // Chapter 17
+    "ἀγαπάω": 17, "δαιμόνιον": 17, "ζητέω": 17, "καλέω": 17,
+    "λαλέω": 17, "οἶδα": 17, "ὅταν": 17, "πλείων, πλεῖον": 17,
+    "πληρόω": 17, "ποιέω": 17, "τηρέω": 17,
+    // Chapter 18
+    "ἀποκρίνομαι": 18, "δεῖ": 18, "δύναμαι": 18, "ἔρχομαι": 18,
+    "νύξ, νυκτός, ἡ": 18, "ὅστις, ἥτις, ὅτι": 18,
+    "πορεύομαι": 18, "συνάγω": 18, "τόπος": 18, "ὡς": 18,
+    // Chapter 19
+    "βασιλεύς, -έως, ὁ": 19, "γεννάω": 19, "ζάω": 19,
+    "Ἰουδαία": 19, "Ἰουδαῖος, -αία, -αῖον": 19, "Ἰσραήλ": 19,
+    "καρπός": 19, "μείζων": 19, "ὅλος, -η, -ον": 19, "προσκυνέω": 19,
+    // Chapter 21
+    "ἀκολουθέω": 21, "διδάσκω": 21, "ἐπερωτάω": 21, "ἐρωτάω": 21,
+    "θέλω": 21, "περιπατέω": 21, "συναγωγή": 21, "Φαρισαῖος": 21,
+    "χρόνος": 21,
+    // Chapter 22
+    "ἀποθνῄσκω": 22, "ἄρτος": 22, "βάλλω": 22, "γῆ, γῆς, ἡ": 22,
+    "γίνομαι": 22, "εἰσέρχομαι": 22, "ἐξέρχομαι": 22, "ἔτι": 22,
+    "εὑρίσκω": 22, "λαμβάνω": 22, "οὔτε": 22,
+    "προσέρχομαι": 22, "προσεύχομαι": 22, "πῦρ, πυρός, τό": 22,
+};
+
+// Maps definition/notes keywords to chapters (for paradigm cards)
+// This lets verb endings, noun endings, etc. get chapter assignments
+const DEFINITION_CHAPTER_MAP = [
+    // Participles (Mounce ch 27-29) — must come before adjective rules
+    // since some participle cards share adjective-pattern notes like "2-1-2"
+    { match: "Pres. Act. Participle", chapter: 27 },
+    { match: "Pres. Mid/Pass Participle", chapter: 27 },
+    { match: "1st Aor. Act. Participle", chapter: 28 },
+    { match: "1st Aor. Mid. Participle", chapter: 28 },
+    { match: "1st Aor. Pass. Participle", chapter: 28 },
+    { match: "Perf. Act. Participle", chapter: 29 },
+    { match: "Perf. Mid/Pass Participle", chapter: 29 },
+    // Nouns & Article (ch 6 = nom/acc, ch 7 = gen/dat, ch 10 = 3rd decl)
+    { match: "Article", chapter: 6 },
+    { match: "2nd Decl", chapter: 6 },
+    { match: "1st Decl", chapter: 6 },
+    { match: "3rd Decl", chapter: 10 },
+    { match: "Square of Stops", chapter: 10 },
+    // Adjectives (ch 9)
+    { match: "2-1-2 pattern", chapter: 9 },
+    { match: "2-2 pattern", chapter: 9 },
+    { match: "3-1-3", chapter: 9 },
+    { match: "Comparative", chapter: 13 },
+    { match: "Attributive", chapter: 9 },
+    { match: "Predicate", chapter: 9 },
+    { match: "Substantival", chapter: 9 },
+    { match: "Modifies the noun", chapter: 9 },
+    { match: "stands in place of a noun", chapter: 9 },
+    { match: "'is' statement", chapter: 9 },
+    // Verb paradigms
+    { match: "Present Active Indicative", chapter: 16 },
+    { match: "Primary active ending", chapter: 16 },
+    { match: "Present Mid/Pass Indicative", chapter: 18 },
+    { match: "Primary mid/pass ending", chapter: 18 },
+    { match: "εἰμί conjugation", chapter: 8 },
+    { match: "εἰμί Pres", chapter: 8 },
+    { match: "Future Active Indicative", chapter: 19 },
+    { match: "Future active", chapter: 19 },
+    { match: "Future Middle Indicative", chapter: 19 },
+    { match: "Future middle", chapter: 19 },
+    { match: "εἰμί future", chapter: 19 },
+    { match: "εἰμί Fut", chapter: 19 },
+    { match: "Liquid future", chapter: 20 },
+    { match: "Liquid Future", chapter: 20 },
+    { match: "Future Liquid", chapter: 20 },
+    { match: "Imperfect Active Indicative", chapter: 21 },
+    { match: "Secondary active", chapter: 21 },
+    { match: "Imperfect Mid/Pass Indicative", chapter: 21 },
+    { match: "Secondary mid/pass", chapter: 21 },
+    { match: "εἰμί imperfect", chapter: 21 },
+    { match: "εἰμί Impf", chapter: 21 },
+    { match: "1st Aorist", chapter: 22 },
+    { match: "Perfect Active Indicative", chapter: 25 },
+    { match: "Perfect active", chapter: 25 },
+    { match: "Perfect Mid/Pass Indicative", chapter: 25 },
+    { match: "Perfect mid/pass", chapter: 25 },
+    { match: "Subjunctive", chapter: 31 },
+    { match: "εἰμί subjunctive", chapter: 31 },
+    { match: "εἰμί Subj", chapter: 31 },
+    { match: "Infinitive", chapter: 16 },
+    { match: "εἰμί infinitive", chapter: 8 },
+    { match: "Future Passive", chapter: 24 },
+    { match: "Future passive", chapter: 24 },
+    // Pronouns
+    { match: "Relative pronoun", chapter: 14 },
+    { match: "3rd person pronoun", chapter: 12 },
+    { match: "demonstrative", chapter: 13 },
+    { match: "Demonstrative", chapter: 13 },
+    { match: "Reflexive", chapter: 13 },
+    { match: "Reciprocal", chapter: 9 },
+    { match: "Personal pronoun", chapter: 11 },
+    { match: "Interrogative", chapter: 10 },
+    { match: "Indefinite", chapter: 10 },
+];
+
+// Chapter descriptions for the UI
+const CHAPTER_INFO = {
+    4: "The Alphabet & First Words",
+    6: "Nominative & Accusative; Article",
+    7: "Genitive & Dative",
+    8: "Prepositions & εἰμί",
+    9: "Adjectives",
+    10: "Third Declension",
+    11: "First/Second Person; More 3rd Decl.",
+    12: "αὐτός; More Pronouns",
+    13: "Demonstratives; Comparatives",
+    14: "Relative Pronouns",
+    16: "Present Active Indicative",
+    17: "Contract Verbs",
+    18: "Deponent Verbs",
+    19: "Future Active/Middle",
+    20: "Liquid Futures",
+    21: "Imperfect Tense",
+    22: "Second Aorist",
+    24: "Aorist Passive; Future Passive",
+    25: "Perfect Tense",
+    27: "Present Participles",
+    28: "Aorist Participles",
+    29: "Perfect Participles",
+    31: "Subjunctive Mood",
 };

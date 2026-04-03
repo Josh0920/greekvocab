@@ -58,6 +58,13 @@
         "Infinitive Endings": "Infinitives",
     };
 
+    // Bare deponent tense names that duplicate proper voice-qualified names
+    const DEPONENT_BARE_TENSES = new Set([
+        "Present Indicative", "Imperfect Indicative", "Future Indicative",
+        "Aorist Indicative", "Perfect Indicative",
+        "Present Meaning", "Past Meaning", "Imperative", "Infinitive",
+    ]);
+
     // --- Init ---
     function init() {
         loadData();
@@ -433,17 +440,19 @@
         const verb = VERB_LEXICON[verbKey];
         if (!verb) return [];
         const tables = [];
-        const rows = ["1st Person", "2nd Person", "3rd Person"];
+        const rows6 = ["1st Person", "2nd Person", "3rd Person"];
+        const rows4 = ["2nd Person", "3rd Person"];
         const cols = ["Singular", "Plural"];
         // Indicative tables
         if (verb.indicative) {
             for (const tense in verb.indicative) {
+                if (DEPONENT_BARE_TENSES.has(tense)) continue;
                 const forms = verb.indicative[tense];
                 if (forms.every(f => f === "--")) continue;
                 tables.push({
                     title: `${verbKey} — ${tense}`,
                     cols: cols,
-                    rows: rows,
+                    rows: rows6,
                     cells: [
                         [forms[0], forms[3]],
                         [forms[1], forms[4]],
@@ -460,11 +469,27 @@
                 tables.push({
                     title: `${verbKey} — ${tense}`,
                     cols: cols,
-                    rows: rows,
+                    rows: rows6,
                     cells: [
                         [forms[0], forms[3]],
                         [forms[1], forms[4]],
                         [forms[2], forms[5]]
+                    ]
+                });
+            }
+        }
+        // Imperative tables (4 forms: 2sg, 3sg, 2pl, 3pl)
+        if (verb.imperative) {
+            for (const tense in verb.imperative) {
+                const forms = verb.imperative[tense];
+                if (forms.every(f => f === "--")) continue;
+                tables.push({
+                    title: `${verbKey} — ${tense}`,
+                    cols: cols,
+                    rows: rows4,
+                    cells: [
+                        [forms[0], forms[2]],
+                        [forms[1], forms[3]]
                     ]
                 });
             }
@@ -489,18 +514,20 @@
         const verb = VERB_LEXICON[verbKey];
         if (!verb) return [];
         const tables = [];
-        const rows = ["1st Person", "2nd Person", "3rd Person"];
+        const rows6 = ["1st Person", "2nd Person", "3rd Person"];
+        const rows4 = ["2nd Person", "3rd Person"];
         const cols = ["Singular", "Plural"];
         const typeSet = new Set(tenseTypes);
 
         if (verb.indicative) {
             for (const tense in verb.indicative) {
+                if (DEPONENT_BARE_TENSES.has(tense)) continue;
                 if (!typeSet.has(tense)) continue;
                 const forms = verb.indicative[tense];
                 if (forms.every(f => f === "--")) continue;
                 tables.push({
                     title: `${verbKey} — ${tense}`,
-                    cols, rows,
+                    cols, rows: rows6,
                     cells: [[forms[0], forms[3]], [forms[1], forms[4]], [forms[2], forms[5]]]
                 });
             }
@@ -512,8 +539,20 @@
                 if (forms.every(f => f === "--")) continue;
                 tables.push({
                     title: `${verbKey} — ${tense}`,
-                    cols, rows,
+                    cols, rows: rows6,
                     cells: [[forms[0], forms[3]], [forms[1], forms[4]], [forms[2], forms[5]]]
+                });
+            }
+        }
+        if (verb.imperative) {
+            for (const tense in verb.imperative) {
+                if (!typeSet.has(tense)) continue;
+                const forms = verb.imperative[tense];
+                if (forms.every(f => f === "--")) continue;
+                tables.push({
+                    title: `${verbKey} — ${tense}`,
+                    cols, rows: rows4,
+                    cells: [[forms[0], forms[2]], [forms[1], forms[3]]]
                 });
             }
         }
@@ -553,17 +592,26 @@
             "Aorist Active Subjunctive", "Aorist Middle Subjunctive", "Aorist Passive Subjunctive",
         ].forEach(t => add(t, "Subjunctive"));
 
+        // Canonical imperative order
+        [
+            "Present Active Imperative", "Present Middle/Passive Imperative",
+            "1st Aorist Active Imperative", "1st Aorist Middle Imperative", "1st Aorist Passive Imperative",
+            "2nd Aorist Active Imperative", "2nd Aorist Middle Imperative", "2nd Aorist Passive Imperative",
+        ].forEach(t => add(t, "Imperative"));
+
         add("Infinitives", "Other");
 
-        // Add any extras from VERB_LEXICON not in canonical lists
+        // Add any extras from VERB_LEXICON not in canonical lists (skip bare deponent duplicates)
         if (typeof VERB_LEXICON !== "undefined") {
             for (const key in VERB_LEXICON) {
                 const v = VERB_LEXICON[key];
                 if (v.indicative) Object.keys(v.indicative).forEach(k => {
+                    if (DEPONENT_BARE_TENSES.has(k)) return;
                     const g = k.includes("Subjunctive") ? "Subjunctive" : "Indicative";
                     add(k, g);
                 });
                 if (v.subjunctive) Object.keys(v.subjunctive).forEach(k => add(k, "Subjunctive"));
+                if (v.imperative) Object.keys(v.imperative).forEach(k => add(k, "Imperative"));
             }
         }
 
@@ -1444,6 +1492,15 @@
         return verbEnglishVariants(meaning, personIdx, tense)[0];
     }
 
+    // English for imperative forms (2sg, 3sg, 2pl, 3pl → indices 0-3)
+    function imperativeEnglish(meaning, impIdx, tense) {
+        let verb = meaning.replace(/;.*$/, "").replace(/,.*$/, "").trim();
+        if (verb.toLowerCase().startsWith("i ")) verb = verb.substring(2);
+        const labels = ["", "let him/her/it ", "", "let them "];
+        const prefix = labels[impIdx] || "";
+        return prefix + verb + "!";
+    }
+
     function searchDictionary(query) {
         const results = document.getElementById("dict-results");
         if (!query) {
@@ -1462,7 +1519,10 @@
                 const termN = norm(card.term);
                 const defN = norm(card.definition);
                 const notesN = norm(card.notes || "");
-                if (termN.includes(q) || defN.includes(q) || notesN.includes(q)) {
+                // Split definition on "/" to allow searching individual alternatives
+                const defAlts = card.definition.split(/[\/]/).map(s => norm(s.trim())).filter(Boolean);
+                const defMatch = defN.includes(q) || defAlts.some(alt => alt.includes(q));
+                if (termN.includes(q) || defMatch || notesN.includes(q)) {
                     matches.push({ type: "card", category: cat.name, catKey, card });
                 }
             });
@@ -1474,6 +1534,9 @@
                 const verb = VERB_LEXICON[verbKey];
                 const lexN = norm(verbKey);
                 const meaningN = norm(verb.meaning);
+                // Split meaning on "/" and ";" to allow searching individual alternatives
+                const meaningAlts = verb.meaning.split(/[\/;]/).map(s => norm(s.trim())).filter(Boolean);
+                const meaningMatch = meaningN.includes(q) || meaningAlts.some(alt => alt.includes(q));
                 let formMatch = false;
                 let matchedInForm = null;
 
@@ -1481,6 +1544,7 @@
                 const searchGroup = (group, label) => {
                     if (formMatch || !group) return;
                     for (const tense in group) {
+                        if (DEPONENT_BARE_TENSES.has(tense)) continue;
                         const forms = group[tense];
                         for (let i = 0; i < forms.length; i++) {
                             if (forms[i] === "--") continue;
@@ -1506,6 +1570,22 @@
                 searchGroup(verb.indicative, "indicative");
                 searchGroup(verb.subjunctive, "subjunctive");
 
+                // Check imperative forms
+                if (!formMatch && verb.imperative) {
+                    for (const tense in verb.imperative) {
+                        const forms = verb.imperative[tense];
+                        for (let i = 0; i < forms.length; i++) {
+                            if (forms[i] === "--") continue;
+                            if (norm(forms[i]).includes(q)) {
+                                formMatch = true;
+                                matchedInForm = { tense, form: forms[i], personIdx: i, english: imperativeEnglish(verb.meaning, i, tense) };
+                                break;
+                            }
+                        }
+                        if (formMatch) break;
+                    }
+                }
+
                 // Check infinitives
                 if (!formMatch && verb.infinitives) {
                     for (const infType in verb.infinitives) {
@@ -1518,7 +1598,7 @@
                     }
                 }
 
-                if (lexN.includes(q) || meaningN.includes(q) || formMatch) {
+                if (lexN.includes(q) || meaningMatch || formMatch) {
                     matches.push({ type: "verb", verbKey, verb, formMatch: matchedInForm });
                 }
             }
@@ -1586,6 +1666,7 @@
 
         if (v.indicative) {
             for (const tense in v.indicative) {
+                if (DEPONENT_BARE_TENSES.has(tense)) continue;
                 const forms = v.indicative[tense];
                 if (forms.every(f => f === "--")) continue;
                 html += `<div class="dict-conj-block"><h4>${escapeHTML(tense)}</h4><table>`;
@@ -1609,6 +1690,22 @@
                         const eng = verbEnglishDisplay(v.meaning, i, tense);
                         const isHL = (f === hlForm && tense === hlTense);
                         html += `<tr class="${isHL ? "dict-highlight" : ""}"><td>${personLabels[i]}</td><td>${escapeHTML(f)} <span class="dict-eng">(${escapeHTML(eng)})</span></td></tr>`;
+                    }
+                });
+                html += `</table></div>`;
+            }
+        }
+        if (v.imperative) {
+            const impLabels = ["2sg", "3sg", "2pl", "3pl"];
+            for (const tense in v.imperative) {
+                const forms = v.imperative[tense];
+                if (forms.every(f => f === "--")) continue;
+                html += `<div class="dict-conj-block"><h4>${escapeHTML(tense)}</h4><table>`;
+                forms.forEach((f, i) => {
+                    if (f !== "--") {
+                        const eng = imperativeEnglish(v.meaning, i, tense);
+                        const isHL = (f === hlForm && tense === hlTense);
+                        html += `<tr class="${isHL ? "dict-highlight" : ""}"><td>${impLabels[i]}</td><td>${escapeHTML(f)} <span class="dict-eng">(${escapeHTML(eng)})</span></td></tr>`;
                     }
                 });
                 html += `</table></div>`;

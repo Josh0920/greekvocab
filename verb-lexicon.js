@@ -13,6 +13,9 @@ const VERB_LEXICON = {
     infinitives: {
       "Present Active": "εἶναι",
     },
+      imperative: {
+        "Present Active Imperative": ["ἴσθι", "ἔστω", "ἔστε", "ἔστωσαν"],
+      },
   },
   "λύω": {
     meaning: "I loose, untie, destroy",
@@ -1760,6 +1763,9 @@ const VERB_LEXICON = {
     infinitives: {
       "Perfect Active": "εἰδέναι",
     },
+      imperative: {
+        "Present Active Imperative": ["ἴσθι", "ἔστω", "ἴστε", "ἔστωσαν"],
+      },
   },
   "ἀσπάζομαι": {
     meaning: "I greet, salute",

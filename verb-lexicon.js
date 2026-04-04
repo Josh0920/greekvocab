@@ -49,6 +49,14 @@ const VERB_LEXICON = {
       "Perfect Active": "λελυκέναι",
       "Perfect Middle/Passive": "λελύσθαι",
     },
+    imperative: {
+      "Present Active Imperative": ["λῦε", "λυέτω", "λύετε", "λυέτωσαν"],
+      "Present Middle/Passive Imperative": ["λύου", "λυέσθω", "λύεσθε", "λυέσθωσαν"],
+      "1st Aorist Active Imperative": ["λῦσον", "λυσάτω", "λύσατε", "λυσάτωσαν"],
+      "1st Aorist Middle Imperative": ["λῦσαι", "λυσάσθω", "λύσασθε", "λυσάσθωσαν"],
+      "1st Aorist Passive Imperative": ["λύθητι", "λυθήτω", "λύθητε", "λυθήτωσαν"],
+    },
+
   },
   "λέγω": {
     meaning: "I say, speak",
@@ -83,6 +91,14 @@ const VERB_LEXICON = {
       "Perfect Active": "εἰρηκέναι",
       "Perfect Middle/Passive": "εἰρῆσθαι",
     },
+    imperative: {
+      "Present Active Imperative": ["λέγε", "λεγέτω", "λέγετε", "λεγέτωσαν"],
+      "Present Middle/Passive Imperative": ["λέγου", "λεγέσθω", "λέγεσθε", "λεγέσθωσαν"],
+      "2nd Aorist Active Imperative": ["εἰπέ", "εἰπέτω", "εἴπατε", "εἰπέτωσαν"],
+      "2nd Aorist Middle Imperative": ["εἰποῦ", "εἰπέσθω", "εἴπεσθε", "εἰπέσθωσαν"],
+      "1st Aorist Passive Imperative": ["ῥήθητι", "ῥηθήτω", "ῥήθητε", "ῥηθήτωσαν"],
+    },
+
   },
   "ἀκούω": {
     meaning: "I hear; learn, obey; understand",
@@ -114,6 +130,13 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "ἀκουσθῆναι",
       "Perfect Active": "ἀκηκοέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["ἄκουε", "ἀκουέτω", "ἀκούετε", "ἀκουέτωσαν"],
+      "Present Middle/Passive Imperative": ["ἀκούου", "ἀκουέσθω", "ἀκούεσθε", "ἀκουέσθωσαν"],
+      "1st Aorist Active Imperative": ["ἄκουσον", "ἀκουσάτω", "ἀκούσατε", "ἀκουσάτωσαν"],
+      "1st Aorist Passive Imperative": ["ἀκούσθητι", "ἀκουσθήτω", "ἀκούσθητε", "ἀκουσθήτωσαν"],
+    },
+
   },
   "βλέπω": {
     meaning: "I see, look at",
@@ -140,6 +163,12 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "βλέπεσθαι",
       "1st Aorist Active": "βλέψαι",
     },
+    imperative: {
+      "Present Active Imperative": ["βλέπε", "βλεπέτω", "βλέπετε", "βλεπέτωσαν"],
+      "Present Middle/Passive Imperative": ["βλέπου", "βλεπέσθω", "βλέπεσθε", "βλεπέσθωσαν"],
+      "1st Aorist Active Imperative": ["βλέψον", "βλεψάτω", "βλέψατε", "βλεψάτωσαν"],
+    },
+
   },
   "ἔχω": {
     meaning: "I have, hold",
@@ -168,6 +197,12 @@ const VERB_LEXICON = {
       "2nd Aorist Active": "σχεῖν",
       "Perfect Active": "ἐσχηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["ἔχε", "ἐχέτω", "ἔχετε", "ἐχέτωσαν"],
+      "Present Middle/Passive Imperative": ["ἔχου", "ἐχέσθω", "ἔχεσθε", "ἐχέσθωσαν"],
+      "2nd Aorist Active Imperative": ["σχέ", "σχέτω", "σχέτε", "σχέτωσαν"],
+    },
+
   },
   "πιστεύω": {
     meaning: "I believe, have faith (in), trust",
@@ -199,6 +234,13 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "πιστευθῆναι",
       "Perfect Active": "πεπιστευκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["πίστευε", "πιστευέτω", "πιστεύετε", "πιστευέτωσαν"],
+      "Present Middle/Passive Imperative": ["πιστεύου", "πιστευέσθω", "πιστεύεσθε", "πιστευέσθωσαν"],
+      "1st Aorist Active Imperative": ["πίστευσον", "πιστευσάτω", "πιστεύσατε", "πιστευσάτωσαν"],
+      "1st Aorist Passive Imperative": ["πιστεύθητι", "πιστευθήτω", "πιστεύθητε", "πιστευθήτωσαν"],
+    },
+
   },
   "ἀγαπάω": {
     meaning: "I love, cherish",
@@ -230,6 +272,13 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "ἀγαπηθῆναι",
       "Perfect Active": "ἠγαπηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["ἀγάπα", "ἀγαπάτω", "ἀγαπᾶτε", "ἀγαπάτωσαν"],
+      "Present Middle/Passive Imperative": ["ἀγαπῶ", "ἀγαπάσθω", "ἀγαπᾶσθε", "ἀγαπάσθωσαν"],
+      "1st Aorist Active Imperative": ["ἀγάπησον", "ἀγαπησάτω", "ἀγαπήσατε", "ἀγαπησάτωσαν"],
+      "1st Aorist Passive Imperative": ["ἀγαπήθητι", "ἀγαπηθήτω", "ἀγαπήθητε", "ἀγαπηθήτωσαν"],
+    },
+
   },
   "ζητέω": {
     meaning: "I seek, desire, try to obtain",
@@ -259,6 +308,13 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "ζητεῖσθαι",
       "1st Aorist Active": "ζητῆσαι",
     },
+    imperative: {
+      "Present Active Imperative": ["ζήτει", "ζητείτω", "ζητεῖτε", "ζητείτωσαν"],
+      "Present Middle/Passive Imperative": ["ζητοῦ", "ζητείσθω", "ζητεῖσθε", "ζητείσθωσαν"],
+      "1st Aorist Active Imperative": ["ζήτησον", "ζητησάτω", "ζητήσατε", "ζητησάτωσαν"],
+      "1st Aorist Passive Imperative": ["ζητήθητι", "ζητηθήτω", "ζητήθητε", "ζητηθήτωσαν"],
+    },
+
   },
   "καλέω": {
     meaning: "I call, name, invite",
@@ -291,6 +347,13 @@ const VERB_LEXICON = {
       "Perfect Active": "κεκληκέναι",
       "Perfect Middle/Passive": "κεκλῆσθαι",
     },
+    imperative: {
+      "Present Active Imperative": ["κάλει", "καλείτω", "καλεῖτε", "καλείτωσαν"],
+      "Present Middle/Passive Imperative": ["καλοῦ", "καλείσθω", "καλεῖσθε", "καλείσθωσαν"],
+      "1st Aorist Active Imperative": ["κάλεσον", "καλεσάτω", "καλέσατε", "καλεσάτωσαν"],
+      "1st Aorist Passive Imperative": ["κλήθητι", "κληθήτω", "κλήθητε", "κληθήτωσαν"],
+    },
+
   },
   "λαλέω": {
     meaning: "I speak, say",
@@ -322,6 +385,13 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "λαληθῆναι",
       "Perfect Active": "λελαληκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["λάλει", "λαλείτω", "λαλεῖτε", "λαλείτωσαν"],
+      "Present Middle/Passive Imperative": ["λαλοῦ", "λαλείσθω", "λαλεῖσθε", "λαλείσθωσαν"],
+      "1st Aorist Active Imperative": ["λάλησον", "λαλησάτω", "λαλήσατε", "λαλησάτωσαν"],
+      "1st Aorist Passive Imperative": ["λαλήθητι", "λαληθήτω", "λαλήθητε", "λαληθήτωσαν"],
+    },
+
   },
   "πληρόω": {
     meaning: "I fill, complete, fulfill",
@@ -353,9 +423,16 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "πληρωθῆναι",
       "Perfect Active": "πεπληρωκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["πλήρου", "πληρούτω", "πληροῦτε", "πληρούτωσαν"],
+      "Present Middle/Passive Imperative": ["πληροῦ", "πληρούσθω", "πληροῦσθε", "πληρούσθωσαν"],
+      "1st Aorist Active Imperative": ["πλήρωσον", "πληρωσάτω", "πληρώσατε", "πληρωσάτωσαν"],
+      "1st Aorist Passive Imperative": ["πληρώθητι", "πληρωθήτω", "πληρώθητε", "πληρωθήτωσαν"],
+    },
+
   },
   "ποιέω": {
-    meaning: "I do, make",
+    meaning: "I do/make",
     indicative: {
       "Present Active Indicative": ["ποιῶ", "ποιεῖς", "ποιεῖ", "ποιοῦμεν", "ποιεῖτε", "ποιοῦσι(ν)"],
       "Present Middle/Passive Indicative": ["ποιοῦμαι", "ποιεῖ", "ποιεῖται", "ποιούμεθα", "ποιεῖσθε", "ποιοῦνται"],
@@ -384,6 +461,13 @@ const VERB_LEXICON = {
       "1st Aorist Middle": "ποιήσασθαι",
       "Perfect Active": "πεποιηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["ποίει", "ποιείτω", "ποιεῖτε", "ποιείτωσαν"],
+      "Present Middle/Passive Imperative": ["ποιοῦ", "ποιείσθω", "ποιεῖσθε", "ποιείσθωσαν"],
+      "1st Aorist Active Imperative": ["ποίησον", "ποιησάτω", "ποιήσατε", "ποιησάτωσαν"],
+      "1st Aorist Passive Imperative": ["ποιήθητι", "ποιηθήτω", "ποιήθητε", "ποιηθήτωσαν"],
+    },
+
   },
   "τηρέω": {
     meaning: "I keep, guard, observe",
@@ -415,6 +499,13 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "τηρηθῆναι",
       "Perfect Active": "τετηρηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["τήρει", "τηρείτω", "τηρεῖτε", "τηρείτωσαν"],
+      "Present Middle/Passive Imperative": ["τηροῦ", "τηρείσθω", "τηρεῖσθε", "τηρείσθωσαν"],
+      "1st Aorist Active Imperative": ["τήρησον", "τηρησάτω", "τηρήσατε", "τηρησάτωσαν"],
+      "1st Aorist Passive Imperative": ["τηρήθητι", "τηρηθήτω", "τηρήθητε", "τηρηθήτωσαν"],
+    },
+
   },
   "ἀποκρίνομαι": {
     meaning: "I answer",
@@ -436,6 +527,11 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "ἀποκρίνεσθαι",
       "1st Aorist Passive": "ἀποκριθῆναι",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["ἀποκρίνου", "ἀποκρινέσθω", "ἀποκρίνεσθε", "ἀποκρινέσθωσαν"],
+      "1st Aorist Passive Imperative": ["ἀποκρίθητι", "ἀποκριθήτω", "ἀποκρίθητε", "ἀποκριθήτωσαν"],
+    },
+
   },
   "δύναμαι": {
     meaning: "I am able, am powerful",
@@ -457,9 +553,13 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "δύνασθαι",
       "1st Aorist Passive": "δυνηθῆναι",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["δύνασο", "δυνάσθω", "δύνασθε", "δυνάσθωσαν"],
+    },
+
   },
   "ἔρχομαι": {
-    meaning: "I come, go",
+    meaning: "I come/go",
     indicative: {
       "Present Middle/Passive Indicative": ["ἔρχομαι", "ἔρχῃ", "ἔρχεται", "ἐρχόμεθα", "ἔρχεσθε", "ἔρχονται"],
       "Future Middle Indicative": ["ἐλεύσομαι", "ἐλεύσῃ", "ἐλεύσεται", "ἐλευσόμεθα", "ἐλεύσεσθε", "ἐλεύσονται"],
@@ -482,6 +582,11 @@ const VERB_LEXICON = {
       "2nd Aorist Active": "ἐλθεῖν",
       "Perfect Active": "ἐληλυθέναι",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["ἔρχου", "ἐρχέσθω", "ἔρχεσθε", "ἐρχέσθωσαν"],
+      "2nd Aorist Active Imperative": ["ἐλθέ", "ἐλθέτω", "ἔλθετε", "ἐλθέτωσαν"],
+    },
+
   },
   "πορεύομαι": {
     meaning: "I go, proceed; live",
@@ -501,6 +606,11 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "πορευθῆναι",
       "Perfect Middle/Passive": "πεπορεύσθαι",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["πορεύου", "πορευέσθω", "πορεύεσθε", "πορευέσθωσαν"],
+      "1st Aorist Passive Imperative": ["πορεύθητι", "πορευθήτω", "πορεύθητε", "πορευθήτωσαν"],
+    },
+
   },
   "γεννάω": {
     meaning: "I beget, give birth to; produce",
@@ -532,6 +642,12 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "γεννηθῆναι",
       "Perfect Active": "γεγεννηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["γέννα", "γεννάτω", "γεννᾶτε", "γεννάτωσαν"],
+      "1st Aorist Active Imperative": ["γέννησον", "γεννησάτω", "γεννήσατε", "γεννησάτωσαν"],
+      "1st Aorist Passive Imperative": ["γεννήθητι", "γεννηθήτω", "γεννήθητε", "γεννηθήτωσαν"],
+    },
+
   },
   "ζάω": {
     meaning: "I live",
@@ -558,6 +674,10 @@ const VERB_LEXICON = {
       "Present Active": "ζῆν",
       "1st Aorist Active": "ζῆσαι",
     },
+    imperative: {
+      "Present Active Imperative": ["ζῆ", "ζάτω", "ζᾶτε", "ζάτωσαν"],
+    },
+
   },
   "προσκυνέω": {
     meaning: "I worship",
@@ -578,6 +698,11 @@ const VERB_LEXICON = {
       "Present Active": "προσκυνεῖν",
       "1st Aorist Active": "προσκυνῆσαι",
     },
+    imperative: {
+      "Present Active Imperative": ["προσκύνει", "προσκυνείτω", "προσκυνεῖτε", "προσκυνείτωσαν"],
+      "1st Aorist Active Imperative": ["προσκύνησον", "προσκυνησάτω", "προσκυνήσατε", "προσκυνησάτωσαν"],
+    },
+
   },
   "αἴρω": {
     meaning: "I raise, take up, take away",
@@ -608,6 +733,13 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "ἀρθῆναι",
       "Perfect Active": "ἠρκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["αἶρε", "αἰρέτω", "αἴρετε", "αἰρέτωσαν"],
+      "Present Middle/Passive Imperative": ["αἴρου", "αἰρέσθω", "αἴρεσθε", "αἰρέσθωσαν"],
+      "1st Aorist Active Imperative": ["ἆρον", "ἀράτω", "ἄρατε", "ἀράτωσαν"],
+      "1st Aorist Passive Imperative": ["ἄρθητι", "ἀρθήτω", "ἄρθητε", "ἀρθήτωσαν"],
+    },
+
   },
   "ἀποκτείνω": {
     meaning: "I kill",
@@ -631,6 +763,11 @@ const VERB_LEXICON = {
       "Present Active": "ἀποκτείνειν",
       "1st Aorist Active": "ἀποκτεῖναι",
     },
+    imperative: {
+      "Present Active Imperative": ["ἀπόκτεινε", "ἀποκτεινέτω", "ἀποκτείνετε", "ἀποκτεινέτωσαν"],
+      "1st Aorist Active Imperative": ["ἀπόκτεινον", "ἀποκτεινάτω", "ἀποκτείνατε", "ἀποκτεινάτωσαν"],
+    },
+
   },
   "ἀποστέλλω": {
     meaning: "I send (away)",
@@ -659,6 +796,12 @@ const VERB_LEXICON = {
       "2nd Aorist Passive": "ἀποσταλῆναι",
       "Perfect Active": "ἀπεσταλκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["ἀπόστελλε", "ἀποστελλέτω", "ἀποστέλλετε", "ἀποστελλέτωσαν"],
+      "1st Aorist Active Imperative": ["ἀπόστειλον", "ἀποστειλάτω", "ἀποστείλατε", "ἀποστειλάτωσαν"],
+      "2nd Aorist Passive Imperative": ["ἀποστάληθι", "ἀποσταλήτω", "ἀποστάλητε", "ἀποσταλήτωσαν"],
+    },
+
   },
   "βαπτίζω": {
     meaning: "I baptize; dip, immerse",
@@ -687,6 +830,13 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "βαπτισθῆναι",
       "Perfect Active": "βεβαπτικέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["βάπτιζε", "βαπτιζέτω", "βαπτίζετε", "βαπτιζέτωσαν"],
+      "Present Middle/Passive Imperative": ["βαπτίζου", "βαπτιζέσθω", "βαπτίζεσθε", "βαπτιζέσθωσαν"],
+      "1st Aorist Active Imperative": ["βάπτισον", "βαπτισάτω", "βαπτίσατε", "βαπτισάτωσαν"],
+      "1st Aorist Passive Imperative": ["βαπτίσθητι", "βαπτισθήτω", "βαπτίσθητε", "βαπτισθήτωσαν"],
+    },
+
   },
   "γινώσκω": {
     meaning: "I know, come to know, realize, learn",
@@ -714,6 +864,12 @@ const VERB_LEXICON = {
       "2nd Aorist Active": "γνῶναι",
       "Perfect Active": "ἐγνωκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["γίνωσκε", "γινωσκέτω", "γινώσκετε", "γινωσκέτωσαν"],
+      "2nd Aorist Active Imperative": ["γνῶθι", "γνώτω", "γνῶτε", "γνώτωσαν"],
+      "1st Aorist Passive Imperative": ["γνώσθητι", "γνωσθήτω", "γνώσθητε", "γνωσθήτωσαν"],
+    },
+
   },
   "ἐγείρω": {
     meaning: "I raise up, wake",
@@ -744,6 +900,12 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "ἐγερθῆναι",
       "Perfect Active": "ἐγηγερκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["ἔγειρε", "ἐγειρέτω", "ἐγείρετε", "ἐγειρέτωσαν"],
+      "1st Aorist Active Imperative": ["ἔγειρον", "ἐγειράτω", "ἐγείρατε", "ἐγειράτωσαν"],
+      "1st Aorist Passive Imperative": ["ἐγέρθητι", "ἐγερθήτω", "ἐγέρθητε", "ἐγερθήτωσαν"],
+    },
+
   },
   "ἐκβάλλω": {
     meaning: "I cast out, send out",
@@ -767,6 +929,11 @@ const VERB_LEXICON = {
       "2nd Aorist Active": "ἐκβαλεῖν",
       "Perfect Active": "ἐκβεβληκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["ἔκβαλλε", "ἐκβαλλέτω", "ἐκβάλλετε", "ἐκβαλλέτωσαν"],
+      "2nd Aorist Active Imperative": ["ἔκβαλε", "ἐκβαλέτω", "ἐκβάλετε", "ἐκβαλέτωσαν"],
+    },
+
   },
   "κρίνω": {
     meaning: "I judge, decide, prefer",
@@ -798,6 +965,13 @@ const VERB_LEXICON = {
       "Perfect Active": "κεκρικέναι",
       "Perfect Middle/Passive": "κεκρίσθαι",
     },
+    imperative: {
+      "Present Active Imperative": ["κρῖνε", "κρινέτω", "κρίνετε", "κρινέτωσαν"],
+      "Present Middle/Passive Imperative": ["κρίνου", "κρινέσθω", "κρίνεσθε", "κρινέσθωσαν"],
+      "1st Aorist Active Imperative": ["κρῖνον", "κρινάτω", "κρίνατε", "κρινάτωσαν"],
+      "1st Aorist Passive Imperative": ["κρίθητι", "κριθήτω", "κρίθητε", "κριθήτωσαν"],
+    },
+
   },
   "μένω": {
     meaning: "I remain, live",
@@ -825,6 +999,11 @@ const VERB_LEXICON = {
       "1st Aorist Active": "μεῖναι",
       "Perfect Active": "μεμενηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["μένε", "μενέτω", "μένετε", "μενέτωσαν"],
+      "1st Aorist Active Imperative": ["μεῖνον", "μεινάτω", "μείνατε", "μεινάτωσαν"],
+    },
+
   },
   "ὁράω": {
     meaning: "I see, notice, experience",
@@ -850,6 +1029,11 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "ὀφθῆναι",
       "2nd Aorist Active": "ἰδεῖν",
       "Perfect Active": "ἑωρακέναι",
+    },
+    imperative: {
+      "Present Active Imperative": ["ὅρα", "ὁράτω", "ὁρᾶτε", "ὁράτωσαν"],
+      "2nd Aorist Active Imperative": ["ἰδέ", "ἰδέτω", "ἴδετε", "ἰδέτωσαν"],
+      "1st Aorist Passive Imperative": ["ὄφθητι", "ὀφθήτω", "ὄφθητε", "ὀφθήτωσαν"],
     },
   },
   "σῴζω": {
@@ -882,6 +1066,13 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "σωθῆναι",
       "Perfect Active": "σεσωκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["σῷζε", "σῳζέτω", "σῴζετε", "σῳζέτωσαν"],
+      "Present Middle/Passive Imperative": ["σῴζου", "σῳζέσθω", "σῴζεσθε", "σῳζέσθωσαν"],
+      "1st Aorist Active Imperative": ["σῶσον", "σωσάτω", "σώσατε", "σωσάτωσαν"],
+      "1st Aorist Passive Imperative": ["σώθητι", "σωθήτω", "σώθητε", "σωθήτωσαν"],
+    },
+
   },
   "ἀκολουθέω": {
     meaning: "I follow; accompany",
@@ -910,6 +1101,11 @@ const VERB_LEXICON = {
       "1st Aorist Active": "ἀκολουθῆσαι",
       "Perfect Active": "ἠκολουθηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["ἀκολούθει", "ἀκολουθείτω", "ἀκολουθεῖτε", "ἀκολουθείτωσαν"],
+      "1st Aorist Active Imperative": ["ἀκολούθησον", "ἀκολουθησάτω", "ἀκολουθήσατε", "ἀκολουθησάτωσαν"],
+    },
+
   },
   "διδάσκω": {
     meaning: "I teach",
@@ -943,6 +1139,11 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "διδαχθῆναι",
       "Perfect Active": "δεδιδαχέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["δίδασκε", "διδασκέτω", "διδάσκετε", "διδασκέτωσαν"],
+      "1st Aorist Active Imperative": ["δίδαξον", "διδαξάτω", "διδάξατε", "διδαξάτωσαν"],
+    },
+
   },
   "ἐπερωτάω": {
     meaning: "I ask (for)",
@@ -971,6 +1172,11 @@ const VERB_LEXICON = {
       "Present Active": "ἐπερωτᾶν",
       "1st Aorist Active": "ἐπερωτῆσαι",
     },
+    imperative: {
+      "Present Active Imperative": ["ἐπερώτα", "ἐπερωτάτω", "ἐπερωτᾶτε", "ἐπερωτάτωσαν"],
+      "1st Aorist Active Imperative": ["ἐπερώτησον", "ἐπερωτησάτω", "ἐπερωτήσατε", "ἐπερωτησάτωσαν"],
+    },
+
   },
   "ἐρωτάω": {
     meaning: "I ask; request",
@@ -999,6 +1205,11 @@ const VERB_LEXICON = {
       "Present Active": "ἐρωτᾶν",
       "1st Aorist Active": "ἐρωτῆσαι",
     },
+    imperative: {
+      "Present Active Imperative": ["ἐρώτα", "ἐρωτάτω", "ἐρωτᾶτε", "ἐρωτάτωσαν"],
+      "1st Aorist Active Imperative": ["ἐρώτησον", "ἐρωτησάτω", "ἐρωτήσατε", "ἐρωτησάτωσαν"],
+    },
+
   },
   "θέλω": {
     meaning: "I wish, desire; enjoy",
@@ -1019,6 +1230,10 @@ const VERB_LEXICON = {
       "Present Active": "θέλειν",
       "1st Aorist Active": "θελῆσαι",
     },
+    imperative: {
+      "Present Active Imperative": ["θέλε", "θελέτω", "θέλετε", "θελέτωσαν"],
+    },
+
   },
   "περιπατέω": {
     meaning: "I walk (around); live",
@@ -1047,6 +1262,11 @@ const VERB_LEXICON = {
       "Present Active": "περιπατεῖν",
       "1st Aorist Active": "περιπατῆσαι",
     },
+    imperative: {
+      "Present Active Imperative": ["περιπάτει", "περιπατείτω", "περιπατεῖτε", "περιπατείτωσαν"],
+      "1st Aorist Active Imperative": ["περιπάτησον", "περιπατησάτω", "περιπατήσατε", "περιπατησάτωσαν"],
+    },
+
   },
   "ἀποθνῄσκω": {
     meaning: "I die, am about to die, am freed from",
@@ -1066,6 +1286,11 @@ const VERB_LEXICON = {
       "Present Active": "ἀποθνῄσκειν",
       "2nd Aorist Active": "ἀποθανεῖν",
     },
+    imperative: {
+      "Present Active Imperative": ["ἀποθνῇσκε", "ἀποθνῃσκέτω", "ἀποθνῄσκετε", "ἀποθνῃσκέτωσαν"],
+      "2nd Aorist Active Imperative": ["ἀπόθανε", "ἀποθανέτω", "ἀποθάνετε", "ἀποθανέτωσαν"],
+    },
+
   },
   "βάλλω": {
     meaning: "I throw",
@@ -1093,6 +1318,12 @@ const VERB_LEXICON = {
       "2nd Aorist Active": "βαλεῖν",
       "Perfect Active": "βεβληκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["βάλλε", "βαλλέτω", "βάλλετε", "βαλλέτωσαν"],
+      "2nd Aorist Active Imperative": ["βάλε", "βαλέτω", "βάλετε", "βαλέτωσαν"],
+      "1st Aorist Passive Imperative": ["βλήθητι", "βληθήτω", "βλήθητε", "βληθήτωσαν"],
+    },
+
   },
   "γίνομαι": {
     meaning: "I become, take place; am, exist; am born, am created",
@@ -1120,9 +1351,15 @@ const VERB_LEXICON = {
       "2nd Aorist Middle": "γενέσθαι",
       "Perfect Active": "γεγονέναι",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["γίνου", "γινέσθω", "γίνεσθε", "γινέσθωσαν"],
+      "2nd Aorist Middle Imperative": ["γενοῦ", "γενέσθω", "γένεσθε", "γενέσθωσαν"],
+      "1st Aorist Passive Imperative": ["γενήθητι", "γενηθήτω", "γενήθητε", "γενηθήτωσαν"],
+    },
+
   },
   "εἰσέρχομαι": {
-    meaning: "I come into; go into; enter",
+    meaning: "I come/go into; enter",
     indicative: {
       "Present Middle/Passive Indicative": ["εἰσέρχομαι", "εἰσέρχῃ", "εἰσέρχεται", "εἰσερχόμεθα", "εἰσέρχεσθε", "εἰσέρχονται"],
       "Future Middle Indicative": ["εἰσελεύσομαι", "εἰσελεύσῃ", "εἰσελεύσεται", "εἰσελευσόμεθα", "εἰσελεύσεσθε", "εἰσελεύσονται"],
@@ -1139,9 +1376,14 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "εἰσέρχεσθαι",
       "2nd Aorist Active": "εἰσελθεῖν",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["εἰσέρχου", "εἰσερχέσθω", "εἰσέρχεσθε", "εἰσερχέσθωσαν"],
+      "2nd Aorist Active Imperative": ["εἴσελθε", "εἰσελθέτω", "εἰσέλθετε", "εἰσελθέτωσαν"],
+    },
+
   },
   "ἐξέρχομαι": {
-    meaning: "I go out",
+    meaning: "I go/come out",
     indicative: {
       "Present Middle/Passive Indicative": ["ἐξέρχομαι", "ἐξέρχῃ", "ἐξέρχεται", "ἐξερχόμεθα", "ἐξέρχεσθε", "ἐξέρχονται"],
       "Future Middle Indicative": ["ἐξελεύσομαι", "ἐξελεύσῃ", "ἐξελεύσεται", "ἐξελευσόμεθα", "ἐξελεύσεσθε", "ἐξελεύσονται"],
@@ -1158,6 +1400,11 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "ἐξέρχεσθαι",
       "2nd Aorist Active": "ἐξελθεῖν",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["ἐξέρχου", "ἐξερχέσθω", "ἐξέρχεσθε", "ἐξερχέσθωσαν"],
+      "2nd Aorist Active Imperative": ["ἔξελθε", "ἐξελθέτω", "ἐξέλθετε", "ἐξελθέτωσαν"],
+    },
+
   },
   "εὑρίσκω": {
     meaning: "I find",
@@ -1182,9 +1429,14 @@ const VERB_LEXICON = {
       "2nd Aorist Active": "εὑρεῖν",
       "Perfect Active": "εὑρηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["εὕρισκε", "εὑρισκέτω", "εὑρίσκετε", "εὑρισκέτωσαν"],
+      "2nd Aorist Active Imperative": ["εὑρέ", "εὑρέτω", "εὕρετε", "εὑρέτωσαν"],
+    },
+
   },
   "λαμβάνω": {
-    meaning: "I take; receive",
+    meaning: "I take/receive",
     indicative: {
       "Present Active Indicative": ["λαμβάνω", "λαμβάνεις", "λαμβάνει", "λαμβάνομεν", "λαμβάνετε", "λαμβάνουσι(ν)"],
       "Present Middle/Passive Indicative": ["λαμβάνομαι", "λαμβάνῃ", "λαμβάνεται", "λαμβανόμεθα", "λαμβάνεσθε", "λαμβάνονται"],
@@ -1208,6 +1460,11 @@ const VERB_LEXICON = {
       "2nd Aorist Active": "λαβεῖν",
       "Perfect Active": "εἰληφέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["λάμβανε", "λαμβανέτω", "λαμβάνετε", "λαμβανέτωσαν"],
+      "2nd Aorist Active Imperative": ["λαβέ", "λαβέτω", "λάβετε", "λαβέτωσαν"],
+    },
+
   },
   "προσέρχομαι": {
     meaning: "I come/go to",
@@ -1232,6 +1489,11 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "προσέρχεσθαι",
       "2nd Aorist Active": "προσελθεῖν",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["προσέρχου", "προσερχέσθω", "προσέρχεσθε", "προσερχέσθωσαν"],
+      "2nd Aorist Active Imperative": ["πρόσελθε", "προσελθέτω", "προσέλθετε", "προσελθέτωσαν"],
+    },
+
   },
   "προσεύχομαι": {
     meaning: "I pray",
@@ -1249,6 +1511,11 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "προσεύχεσθαι",
       "1st Aorist Middle": "προσεύξασθαι",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["προσεύχου", "προσευχέσθω", "προσεύχεσθε", "προσευχέσθωσαν"],
+      "1st Aorist Middle Imperative": ["πρόσευξαι", "προσευξάσθω", "προσεύξασθε", "προσευξάσθωσαν"],
+    },
+
   },
   "ἀπέρχομαι": {
     meaning: "I depart",
@@ -1268,6 +1535,11 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "ἀπέρχεσθαι",
       "2nd Aorist Active": "ἀπελθεῖν",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["ἀπέρχου", "ἀπερχέσθω", "ἀπέρχεσθε", "ἀπερχέσθωσαν"],
+      "2nd Aorist Active Imperative": ["ἄπελθε", "ἀπελθέτω", "ἀπέλθετε", "ἀπελθέτωσαν"],
+    },
+
   },
   "ἄρχομαι": {
     meaning: "I begin",
@@ -1285,6 +1557,11 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "ἄρχεσθαι",
       "1st Aorist Middle": "ἄρξασθαι",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["ἄρχου", "ἀρχέσθω", "ἄρχεσθε", "ἀρχέσθωσαν"],
+      "1st Aorist Middle Imperative": ["ἄρξαι", "ἀρξάσθω", "ἄρξασθε", "ἀρξάσθωσαν"],
+    },
+
   },
   "γράφω": {
     meaning: "I write",
@@ -1314,6 +1591,13 @@ const VERB_LEXICON = {
       "Perfect Active": "γεγραφέναι",
       "Perfect Middle/Passive": "γεγράφθαι",
     },
+    imperative: {
+      "Present Active Imperative": ["γράφε", "γραφέτω", "γράφετε", "γραφέτωσαν"],
+      "Present Middle/Passive Imperative": ["γράφου", "γραφέσθω", "γράφεσθε", "γραφέσθωσαν"],
+      "1st Aorist Active Imperative": ["γράψον", "γραψάτω", "γράψατε", "γραψάτωσαν"],
+      "2nd Aorist Passive Imperative": ["γράφητι", "γραφήτω", "γράφητε", "γραφήτωσαν"],
+    },
+
   },
   "δοξάζω": {
     meaning: "I praise, honor, glorify",
@@ -1339,6 +1623,12 @@ const VERB_LEXICON = {
       "1st Aorist Active": "δοξάσαι",
       "1st Aorist Passive": "δοξασθῆναι",
     },
+    imperative: {
+      "Present Active Imperative": ["δόξαζε", "δοξαζέτω", "δοξάζετε", "δοξαζέτωσαν"],
+      "1st Aorist Active Imperative": ["δόξασον", "δοξασάτω", "δοξάσατε", "δοξασάτωσαν"],
+      "1st Aorist Passive Imperative": ["δοξάσθητι", "δοξασθήτω", "δοξάσθητε", "δοξασθήτωσαν"],
+    },
+
   },
   "κηρύσσω": {
     meaning: "I proclaim; preach",
@@ -1363,6 +1653,12 @@ const VERB_LEXICON = {
       "1st Aorist Active": "κηρύξαι",
       "1st Aorist Passive": "κηρυχθῆναι",
     },
+    imperative: {
+      "Present Active Imperative": ["κήρυσσε", "κηρυσσέτω", "κηρύσσετε", "κηρυσσέτωσαν"],
+      "1st Aorist Active Imperative": ["κήρυξον", "κηρυξάτω", "κηρύξατε", "κηρυξάτωσαν"],
+      "1st Aorist Passive Imperative": ["κηρύχθητι", "κηρυχθήτω", "κηρύχθητε", "κηρυχθήτωσαν"],
+    },
+
   },
   "πίνω": {
     meaning: "I drink",
@@ -1388,6 +1684,11 @@ const VERB_LEXICON = {
       "2nd Aorist Active": "πιεῖν",
       "Perfect Active": "πεπωκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["πῖνε", "πινέτω", "πίνετε", "πινέτωσαν"],
+      "2nd Aorist Active Imperative": ["πίε", "πιέτω", "πίετε", "πιέτωσαν"],
+    },
+
   },
   "ἄγω": {
     meaning: "I lead, bring, arrest",
@@ -1413,6 +1714,12 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "ἀχθῆναι",
       "2nd Aorist Active": "ἀγαγεῖν",
     },
+    imperative: {
+      "Present Active Imperative": ["ἄγε", "ἀγέτω", "ἄγετε", "ἀγέτωσαν"],
+      "2nd Aorist Active Imperative": ["ἄγαγε", "ἀγαγέτω", "ἀγάγετε", "ἀγαγέτωσαν"],
+      "1st Aorist Passive Imperative": ["ἄχθητι", "ἀχθήτω", "ἄχθητε", "ἀχθήτωσαν"],
+    },
+
   },
   "φοβέομαι": {
     meaning: "I fear",
@@ -1433,6 +1740,11 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "φοβεῖσθαι",
       "1st Aorist Passive": "φοβηθῆναι",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["φοβοῦ", "φοβείσθω", "φοβεῖσθε", "φοβείσθωσαν"],
+      "1st Aorist Passive Imperative": ["φοβήθητι", "φοβηθήτω", "φοβήθητε", "φοβηθήτωσαν"],
+    },
+
   },
   "χαίρω": {
     meaning: "I rejoice",
@@ -1453,6 +1765,10 @@ const VERB_LEXICON = {
       "Present Active": "χαίρειν",
       "2nd Aorist Passive": "χαρῆναι",
     },
+    imperative: {
+      "Present Active Imperative": ["χαῖρε", "χαιρέτω", "χαίρετε", "χαιρέτωσαν"],
+    },
+
   },
   "αἰτέω": {
     meaning: "I ask; demand",
@@ -1479,6 +1795,12 @@ const VERB_LEXICON = {
       "1st Aorist Middle": "αἰτήσασθαι",
       "Perfect Active": "ᾐτηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["αἴτει", "αἰτείτω", "αἰτεῖτε", "αἰτείτωσαν"],
+      "Present Middle/Passive Imperative": ["αἰτοῦ", "αἰτείσθω", "αἰτεῖσθε", "αἰτείσθωσαν"],
+      "1st Aorist Active Imperative": ["αἴτησον", "αἰτησάτω", "αἰτήσατε", "αἰτησάτωσαν"],
+    },
+
   },
   "μαρτυρέω": {
     meaning: "I bear witness, testify",
@@ -1503,9 +1825,14 @@ const VERB_LEXICON = {
       "1st Aorist Active": "μαρτυρῆσαι",
       "Perfect Active": "μεμαρτυρηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["μαρτύρει", "μαρτυρείτω", "μαρτυρεῖτε", "μαρτυρείτωσαν"],
+      "1st Aorist Active Imperative": ["μαρτύρησον", "μαρτυρησάτω", "μαρτυρήσατε", "μαρτυρησάτωσαν"],
+    },
+
   },
   "ἀναβαίνω": {
-    meaning: "I go up",
+    meaning: "I go/come up",
     indicative: {
       "Present Active Indicative": ["ἀναβαίνω", "ἀναβαίνεις", "ἀναβαίνει", "ἀναβαίνομεν", "ἀναβαίνετε", "ἀναβαίνουσι(ν)"],
       "Future Middle Indicative": ["ἀναβήσομαι", "ἀναβήσῃ", "ἀναβήσεται", "ἀναβησόμεθα", "ἀναβήσεσθε", "ἀναβήσονται"],
@@ -1526,9 +1853,14 @@ const VERB_LEXICON = {
       "2nd Aorist Active": "ἀναβῆναι",
       "Perfect Active": "ἀναβεβηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["ἀνάβαινε", "ἀναβαινέτω", "ἀναβαίνετε", "ἀναβαινέτωσαν"],
+      "2nd Aorist Active Imperative": ["ἀνάβηθι", "ἀναβήτω", "ἀνάβητε", "ἀναβήτωσαν"],
+    },
+
   },
   "καταβαίνω": {
-    meaning: "I go down; come down",
+    meaning: "I go/come down",
     indicative: {
       "Present Active Indicative": ["καταβαίνω", "καταβαίνεις", "καταβαίνει", "καταβαίνομεν", "καταβαίνετε", "καταβαίνουσιν"],
       "Future Middle Indicative": ["καταβήσομαι", "καταβήσῃ", "καταβήσεται", "καταβησόμεθα", "καταβήσεσθε", "καταβήσονται"],
@@ -1547,6 +1879,11 @@ const VERB_LEXICON = {
       "2nd Aorist Active": "καταβῆναι",
       "Perfect Active": "καταβεβηκέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["κατάβαινε", "καταβαινέτω", "καταβαίνετε", "καταβαινέτωσαν"],
+      "2nd Aorist Active Imperative": ["κατάβηθι", "καταβήτω", "κατάβητε", "καταβήτωσαν"],
+    },
+
   },
   "παρακαλέω": {
     meaning: "I call to one's side; urge, implore; comfort",
@@ -1570,6 +1907,12 @@ const VERB_LEXICON = {
       "1st Aorist Active": "παρακαλέσαι",
       "1st Aorist Passive": "παρακληθῆναι",
     },
+    imperative: {
+      "Present Active Imperative": ["παρακάλει", "παρακαλείτω", "παρακαλεῖτε", "παρακαλείτωσαν"],
+      "1st Aorist Active Imperative": ["παρακάλεσον", "παρακαλεσάτω", "παρακαλέσατε", "παρακαλεσάτωσαν"],
+      "1st Aorist Passive Imperative": ["παρακλήθητι", "παρακληθήτω", "παρακλήθητε", "παρακληθήτωσαν"],
+    },
+
   },
   "πείθω": {
     meaning: "I persuade",
@@ -1596,6 +1939,13 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "πεισθῆναι",
       "Perfect Active": "πεπεικέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["πεῖθε", "πειθέτω", "πείθετε", "πειθέτωσαν"],
+      "Present Middle/Passive Imperative": ["πείθου", "πειθέσθω", "πείθεσθε", "πειθέσθωσαν"],
+      "1st Aorist Active Imperative": ["πεῖσον", "πεισάτω", "πείσατε", "πεισάτωσαν"],
+      "1st Aorist Passive Imperative": ["πείσθητι", "πεισθήτω", "πείσθητε", "πεισθήτωσαν"],
+    },
+
   },
   "ἐσθίω": {
     meaning: "I eat",
@@ -1617,6 +1967,11 @@ const VERB_LEXICON = {
       "Present Active": "ἐσθίειν",
       "2nd Aorist Active": "φαγεῖν",
     },
+    imperative: {
+      "Present Active Imperative": ["ἔσθιε", "ἐσθιέτω", "ἐσθίετε", "ἐσθιέτωσαν"],
+      "2nd Aorist Active Imperative": ["φάγε", "φαγέτω", "φάγετε", "φαγέτωσαν"],
+    },
+
   },
   "πέμπω": {
     meaning: "I send",
@@ -1639,6 +1994,12 @@ const VERB_LEXICON = {
       "1st Aorist Active": "πέμψαι",
       "1st Aorist Passive": "πεμφθῆναι",
     },
+    imperative: {
+      "Present Active Imperative": ["πέμπε", "πεμπέτω", "πέμπετε", "πεμπέτωσαν"],
+      "1st Aorist Active Imperative": ["πέμψον", "πεμψάτω", "πέμψατε", "πεμψάτωσαν"],
+      "1st Aorist Passive Imperative": ["πέμφθητι", "πεμφθήτω", "πέμφθητε", "πεμφθήτωσαν"],
+    },
+
   },
   "φέρω": {
     meaning: "I carry, bear, produce",
@@ -1665,6 +2026,12 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "ἐνεχθῆναι",
       "Perfect Active": "ἐνηνοχέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["φέρε", "φερέτω", "φέρετε", "φερέτωσαν"],
+      "1st Aorist Active Imperative": ["ἔνεγκον", "ἐνεγκάτω", "ἐνέγκατε", "ἐνεγκάτωσαν"],
+      "1st Aorist Passive Imperative": ["ἐνέχθητι", "ἐνεχθήτω", "ἐνέχθητε", "ἐνεχθήτωσαν"],
+    },
+
   },
   "εὐαγγελίζω": {
     meaning: "I bring good news; preach",
@@ -1691,6 +2058,12 @@ const VERB_LEXICON = {
       "1st Aorist Middle": "εὐαγγελίσασθαι",
       "1st Aorist Passive": "εὐαγγελισθῆναι",
     },
+    imperative: {
+      "Present Active Imperative": ["εὐαγγέλιζε", "εὐαγγελιζέτω", "εὐαγγελίζετε", "εὐαγγελιζέτωσαν"],
+      "Present Middle/Passive Imperative": ["εὐαγγελίζου", "εὐαγγελιζέσθω", "εὐαγγελίζεσθε", "εὐαγγελιζέσθωσαν"],
+      "1st Aorist Middle Imperative": ["εὐαγγέλισαι", "εὐαγγελισάσθω", "εὐαγγελίσασθε", "εὐαγγελισάσθωσαν"],
+    },
+
   },
   "θεωρέω": {
     meaning: "I look at; perceive",
@@ -1711,6 +2084,11 @@ const VERB_LEXICON = {
       "Present Active": "θεωρεῖν",
       "1st Aorist Active": "θεωρῆσαι",
     },
+    imperative: {
+      "Present Active Imperative": ["θεώρει", "θεωρείτω", "θεωρεῖτε", "θεωρείτωσαν"],
+      "1st Aorist Active Imperative": ["θεώρησον", "θεωρησάτω", "θεωρήσατε", "θεωρησάτωσαν"],
+    },
+
   },
   "κάθημαι": {
     meaning: "I sit (down); live",
@@ -1728,6 +2106,10 @@ const VERB_LEXICON = {
     infinitives: {
       "Present Middle/Passive": "καθῆσθαι",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["κάθου", "καθήσθω", "κάθησθε", "καθήσθωσαν"],
+    },
+
   },
   "μέλλω": {
     meaning: "I am about to",
@@ -1743,6 +2125,10 @@ const VERB_LEXICON = {
     infinitives: {
       "Present Active": "μέλλειν",
     },
+    imperative: {
+      "Present Active Imperative": ["μέλλε", "μελλέτω", "μέλλετε", "μελλέτωσαν"],
+    },
+
   },
   "οἶδα": {
     meaning: "I know, understand",
@@ -1783,6 +2169,11 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "ἀσπάζεσθαι",
       "1st Aorist Middle": "ἀσπάσασθαι",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["ἀσπάζου", "ἀσπαζέσθω", "ἀσπάζεσθε", "ἀσπαζέσθωσαν"],
+      "1st Aorist Middle Imperative": ["ἄσπασαι", "ἀσπασάσθω", "ἀσπάσασθε", "ἀσπασάσθωσαν"],
+    },
+
   },
   "κράζω": {
     meaning: "I cry out, call out",
@@ -1804,9 +2195,14 @@ const VERB_LEXICON = {
       "1st Aorist Active": "κράξαι",
       "Perfect Active": "κεκραγέναι",
     },
+    imperative: {
+      "Present Active Imperative": ["κράζε", "κραζέτω", "κράζετε", "κραζέτωσαν"],
+      "1st Aorist Active Imperative": ["κράξον", "κραξάτω", "κράξατε", "κραξάτωσαν"],
+    },
+
   },
   "δέχομαι": {
-    meaning: "I take, receive",
+    meaning: "I take/receive",
     indicative: {
       "Present Middle/Passive Indicative": ["δέχομαι", "δέχῃ", "δέχεται", "δεχόμεθα", "δέχεσθε", "δέχονται"],
       "Future Middle Indicative": ["δέξομαι", "δέξῃ", "δέξεται", "δεξόμεθα", "δέξεσθε", "δέξονται"],
@@ -1822,9 +2218,14 @@ const VERB_LEXICON = {
       "Present Middle/Passive": "δέχεσθαι",
       "1st Aorist Middle": "δέξασθαι",
     },
+    imperative: {
+      "Present Middle/Passive Imperative": ["δέχου", "δεχέσθω", "δέχεσθε", "δεχέσθωσαν"],
+      "1st Aorist Middle Imperative": ["δέξαι", "δεξάσθω", "δέξασθε", "δεξάσθωσαν"],
+    },
+
   },
   "δοκέω": {
-    meaning: "I think, seem",
+    meaning: "I think/seem",
     indicative: {
       "Present Active Indicative": ["δοκῶ", "δοκεῖς", "δοκεῖ", "δοκοῦμεν", "δοκεῖτε", "δοκοῦσιν"],
       "Future Active Indicative": ["δόξω", "δόξεις", "δόξει", "δόξομεν", "δόξετε", "δόξουσιν"],
@@ -1841,6 +2242,10 @@ const VERB_LEXICON = {
       "Present Active": "δοκεῖν",
       "1st Aorist Active": "δόξαι",
     },
+    imperative: {
+      "Present Active Imperative": ["δόκει", "δοκείτω", "δοκεῖτε", "δοκείτωσαν"],
+    },
+
   },
   "σπείρω": {
     meaning: "I sow",
@@ -1864,6 +2269,12 @@ const VERB_LEXICON = {
       "1st Aorist Active": "σπεῖραι",
       "2nd Aorist Passive": "σπαρῆναι",
     },
+    imperative: {
+      "Present Active Imperative": ["σπεῖρε", "σπειρέτω", "σπείρετε", "σπειρέτωσαν"],
+      "1st Aorist Active Imperative": ["σπεῖρον", "σπειράτω", "σπείρατε", "σπειράτωσαν"],
+      "2nd Aorist Passive Imperative": ["σπάρηθι", "σπαρήτω", "σπάρητε", "σπαρήτωσαν"],
+    },
+
   },
   "ὑπάγω": {
     meaning: "I depart",
@@ -1880,6 +2291,10 @@ const VERB_LEXICON = {
     infinitives: {
       "Present Active": "ὑπάγειν",
     },
+    imperative: {
+      "Present Active Imperative": ["ὕπαγε", "ὑπαγέτω", "ὑπάγετε", "ὑπαγέτωσαν"],
+    },
+
   },
   "συνάγω": {
     meaning: "I gather together, bring together; lead",
@@ -1906,6 +2321,12 @@ const VERB_LEXICON = {
       "1st Aorist Passive": "συναχθῆναι",
       "2nd Aorist Active": "συναγαγεῖν",
     },
+    imperative: {
+      "Present Active Imperative": ["σύναγε", "συναγέτω", "συνάγετε", "συναγέτωσαν"],
+      "2nd Aorist Active Imperative": ["συνάγαγε", "συναγαγέτω", "συναγάγετε", "συναγαγέτωσαν"],
+      "1st Aorist Passive Imperative": ["συνάχθητι", "συναχθήτω", "συνάχθητε", "συναχθήτωσαν"],
+    },
+
   },
   "δίδωμι": {
     meaning: "I give",
@@ -1915,6 +2336,11 @@ const VERB_LEXICON = {
       "Future Active Indicative": ["δώσω", "δώσεις", "δώσει", "δώσομεν", "δώσετε", "δώσουσι(ν)"],
       "Aorist Active Indicative": ["ἔδωκα", "ἔδωκας", "ἔδωκε(ν)", "ἔδομεν", "ἔδοτε", "ἔδοσαν"],
       "Perfect Active Indicative": ["δέδωκα", "δέδωκας", "δέδωκε(ν)", "δεδώκαμεν", "δεδώκατε", "δεδώκασι(ν)"],
+    },
+
+    imperative: {
+      "Present Active Imperative": ["δίδου", "διδότω", "δίδοτε", "διδότωσαν"],
+      "2nd Aorist Active Imperative": ["δός", "δότω", "δότε", "δότωσαν"],
     },
   },
   "συνέρχομαι": {
@@ -1927,6 +2353,11 @@ const VERB_LEXICON = {
       "Aorist Indicative": ["συνῆλθον", "συνῆλθες", "συνῆλθε(ν)", "συνῆλθομεν", "συνῆλθετε", "συνῆλθον"],
       "Perfect Indicative": ["συνελήλυθα", "συνελήλυθας", "συνελήλυθε(ν)", "συνεληλύθαμεν", "συνεληλύθατε", "συνελήλυθασι(ν)"],
     },
+
+    imperative: {
+      "Present Middle/Passive Imperative": ["συνέρχου", "συνερχέσθω", "συνέρχεσθε", "συνερχέσθωσαν"],
+      "2nd Aorist Active Imperative": ["σύνελθε", "συνελθέτω", "συνέλθετε", "συνελθέτωσαν"],
+    },
   },
   "υἱοθετέω": {
     meaning: "I adopt",
@@ -1936,6 +2367,10 @@ const VERB_LEXICON = {
       "Imperfect Active Indicative": ["υἱοθέτουν", "υἱοθέτεις", "υἱοθέτει", "υἱοθετοῦμεν", "υἱοθετεῖτε", "υἱοθέτουν"],
       "Future Active Indicative": ["υἱοθετήσω", "υἱοθετήσεις", "υἱοθετήσει", "υἱοθετήσομεν", "υἱοθετήσετε", "υἱοθετήσουσι(ν)"],
       "1st Aorist Active Indicative": ["υἱοθέτησα", "υἱοθέτησας", "υἱοθέτησε(ν)", "υἱοθετήσαμεν", "υἱοθετήσατε", "υἱοθέτησαν"],
+    },
+    imperative: {
+      "Present Active Imperative": ["υἱοθέτει", "υἱοθετείτω", "υἱοθετεῖτε", "υἱοθετείτωσαν"],
+      "1st Aorist Active Imperative": ["υἱοθέτησον", "υἱοθετησάτω", "υἱοθετήσατε", "υἱοθετησάτωσαν"],
     },
   },
   "φίλεω": {
@@ -1948,6 +2383,10 @@ const VERB_LEXICON = {
       "1st Aorist Active Indicative": ["ἐφίλησα", "ἐφίλησας", "ἐφίλησε(ν)", "ἐφιλήσαμεν", "ἐφιλήσατε", "ἐφίλησαν"],
       "Perfect Active Indicative": ["πεφίληκα", "πεφίληκας", "πεφίληκε(ν)", "πεφιλήκαμεν", "πεφιλήκατε", "πεφίληκασι(ν)"],
     },
+    imperative: {
+      "Present Active Imperative": ["φίλει", "φιλείτω", "φιλεῖτε", "φιλείτωσαν"],
+      "1st Aorist Active Imperative": ["φίλησον", "φιλησάτω", "φιλήσατε", "φιλησάτωσαν"],
+    },
   },
   "φαίνω": {
     meaning: "I show / appear",
@@ -1958,6 +2397,10 @@ const VERB_LEXICON = {
       "Aorist Active Indicative": ["ἔφηνα", "ἔφηνας", "ἔφηνε(ν)", "ἐφήναμεν", "ἐφήνατε", "ἔφηναν"],
       "Perfect Active Indicative": ["πέφαγκα", "πέφαγκας", "πέφαγκε(ν)", "πεφάγκαμεν", "πεφάγκατε", "πέφαγκασι(ν)"],
     },
+    imperative: {
+      "Present Active Imperative": ["φαῖνε", "φαινέτω", "φαίνετε", "φαινέτωσαν"],
+      "1st Aorist Active Imperative": ["φῆνον", "φηνάτω", "φήνατε", "φηνάτωσαν"],
+    },
   },
   "φεύγω": {
     meaning: "I flee",
@@ -1966,6 +2409,11 @@ const VERB_LEXICON = {
       "Imperfect Active Indicative": ["ἔφευγον", "ἔφευγες", "ἔφευγε(ν)", "ἐφεύγομεν", "ἐφεύγετε", "ἔφευγον"],
       "Future Active Indicative": ["φεύξομαι", "φεύξῃ", "φεύξεται", "φευξόμεθα", "φεύξεσθε", "φεύξονται"],
       "Aorist Active Indicative": ["ἔφυγον", "ἔφυγες", "ἔφυγε(ν)", "ἐφύγομεν", "ἐφύγετε", "ἔφυγον"],
+    },
+
+    imperative: {
+      "Present Active Imperative": ["φεῦγε", "φευγέτω", "φεύγετε", "φευγέτωσαν"],
+      "2nd Aorist Active Imperative": ["φύγε", "φυγέτω", "φύγετε", "φυγέτωσαν"],
     },
   },
   "φρονέω": {
@@ -1977,6 +2425,11 @@ const VERB_LEXICON = {
       "Future Active Indicative": ["φρονήσω", "φρονήσεις", "φρονήσει", "φρονήσομεν", "φρονήσετε", "φρονήσουσι(ν)"],
       "1st Aorist Active Indicative": ["ἐφρόνησα", "ἐφρόνησας", "ἐφρόνησε(ν)", "ἐφρονήσαμεν", "ἐφρονήσατε", "ἐφρόνησαν"],
     },
+
+    imperative: {
+      "Present Active Imperative": ["φρόνει", "φρονείτω", "φρονεῖτε", "φρονείτωσαν"],
+      "1st Aorist Active Imperative": ["φρόνησον", "φρονησάτω", "φρονήσατε", "φρονησάτωσαν"],
+    },
   },
   "φωνέω": {
     meaning: "I call / cry out",
@@ -1986,6 +2439,11 @@ const VERB_LEXICON = {
       "Imperfect Active Indicative": ["ἐφώνουν", "ἐφώνεις", "ἐφώνει", "ἐφωνοῦμεν", "ἐφωνεῖτε", "ἐφώνουν"],
       "Future Active Indicative": ["φωνήσω", "φωνήσεις", "φωνήσει", "φωνήσομεν", "φωνήσετε", "φωνήσουσι(ν)"],
       "1st Aorist Active Indicative": ["ἐφώνησα", "ἐφώνησας", "ἐφώνησε(ν)", "ἐφωνήσαμεν", "ἐφωνήσατε", "ἐφώνησαν"],
+    },
+
+    imperative: {
+      "Present Active Imperative": ["φώνει", "φωνείτω", "φωνεῖτε", "φωνείτωσαν"],
+      "1st Aorist Active Imperative": ["φώνησον", "φωνησάτω", "φωνήσατε", "φωνησάτωσαν"],
     },
   },
   "ἵστημι": {
@@ -1998,6 +2456,13 @@ const VERB_LEXICON = {
       "Aorist Active Indicative": ["ἔστην", "ἔστης", "ἔστη", "ἔστημεν", "ἔστητε", "ἔστησαν"],
       "Perfect Active Indicative": ["ἕστηκα", "ἕστηκας", "ἕστηκε(ν)", "ἑστήκαμεν", "ἑστήκατε", "ἑστήκασι(ν)"],
     },
+
+    imperative: {
+      "Present Active Imperative": ["ἵστη", "ἱστάτω", "ἵστατε", "ἱστάτωσαν"],
+      "2nd Aorist Active Imperative": ["στῆθι", "στήτω", "στῆτε", "στήτωσαν"],
+      "1st Aorist Active Imperative": ["στῆσον", "στησάτω", "στήσατε", "στησάτωσαν"],
+      "1st Aorist Passive Imperative": ["σταθήτι", "σταθήτω", "στάθητε", "σταθήτωσαν"],
+    },
   },
   "ὀνομάζω": {
     meaning: "I name / call",
@@ -2007,6 +2472,12 @@ const VERB_LEXICON = {
       "Future Active Indicative": ["ὀνομάσω", "ὀνομάσεις", "ὀνομάσει", "ὀνομάσομεν", "ὀνομάσετε", "ὀνομάσουσι(ν)"],
       "1st Aorist Active Indicative": ["ὠνόμασα", "ὠνόμασας", "ὠνόμασε(ν)", "ὠνομάσαμεν", "ὠνομάσατε", "ὠνόμασαν"],
     },
+
+    imperative: {
+      "Present Active Imperative": ["ὀνόμαζε", "ὀνομαζέτω", "ὀνομάζετε", "ὀνομαζέτωσαν"],
+      "1st Aorist Active Imperative": ["ὀνόμασον", "ὀνομασάτω", "ὀνομάσατε", "ὀνομασάτωσαν"],
+      "1st Aorist Passive Imperative": ["ὀνομάσθητι", "ὀνομασθήτω", "ὀνομάσθητε", "ὀνομασθήτωσαν"],
+    },
   },
   "ὑποτάσσω": {
     meaning: "I submit / subject",
@@ -2015,6 +2486,13 @@ const VERB_LEXICON = {
       "Imperfect Active Indicative": ["ὑπέτασσον", "ὑπέτασσες", "ὑπέτασσε(ν)", "ὑπετάσσομεν", "ὑπετάσσετε", "ὑπέτασσον"],
       "Future Active Indicative": ["ὑποτάξω", "ὑποτάξεις", "ὑποτάξει", "ὑποτάξομεν", "ὑποτάξετε", "ὑποτάξουσι(ν)"],
       "1st Aorist Active Indicative": ["ὑπέταξα", "ὑπέταξας", "ὑπέταξε(ν)", "ὑπετάξαμεν", "ὑπετάξατε", "ὑπέταξαν"],
+    },
+
+    imperative: {
+      "Present Active Imperative": ["ὑπότασσε", "ὑποτασσέτω", "ὑποτάσσετε", "ὑποτασσέτωσαν"],
+      "Present Middle/Passive Imperative": ["ὑποτάσσου", "ὑποτασσέσθω", "ὑποτάσσεσθε", "ὑποτασσέσθωσαν"],
+      "1st Aorist Active Imperative": ["ὑπόταξον", "ὑποταξάτω", "ὑποτάξατε", "ὑποταξάτωσαν"],
+      "2nd Aorist Passive Imperative": ["ὑποτάγηθι", "ὑποταγήτω", "ὑποτάγητε", "ὑποταγήτωσαν"],
     },
   },
 };

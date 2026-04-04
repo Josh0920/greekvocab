@@ -1321,9 +1321,16 @@
         document.getElementById("dict-results").innerHTML = '<p class="dict-hint">Start typing to search across all categories and verb conjugations</p>';
     }
 
+    // Detect deponent verbs — those with no active indicative forms
+    function isDeponentVerb(verbObj) {
+        if (!verbObj || !verbObj.indicative) return false;
+        // A verb is deponent if it has no Present Active Indicative
+        return !verbObj.indicative["Present Active Indicative"];
+    }
+
     // Build English translations for a conjugated verb form, aware of tense/voice
     // tense is optional — when omitted, gives present active translation (for search matching)
-    function verbEnglishVariants(meaning, personIdx, tense) {
+    function verbEnglishVariants(meaning, personIdx, tense, isDeponent) {
         const pronounSets = [
             ["I"],                            // 1sg
             ["you"],                          // 2sg
@@ -1339,11 +1346,48 @@
         let verb = firstMeaning;
         if (verb.toLowerCase().startsWith("i ")) verb = verb.substring(2);
 
+        // Handle "/" alternatives: conjugate each separately and join with "/"
+        if (verb.includes("/")) {
+            // "go/come down" → verbs ["go","come"], shared suffix "down"
+            // "come/go" → verbs ["come","go"], no suffix
+            const slashMatch = verb.match(/^(\S+)\/(\S+)(.*)$/);
+            let altVerbs, sharedSuffix;
+            if (slashMatch) {
+                altVerbs = [slashMatch[1].trim(), slashMatch[2].trim()];
+                sharedSuffix = slashMatch[3].trim();
+            } else {
+                altVerbs = verb.split("/").map(v => v.trim());
+                sharedSuffix = "";
+            }
+            const variants = pronouns.map(p => {
+                const altTranslations = altVerbs.map(av => {
+                    const avBe = av.toLowerCase().startsWith("am");
+                    let trans = buildTenseTranslation(p, av, tense, avBe, personIdx, isDeponent);
+                    if (sharedSuffix) {
+                        // Insert suffix before voice tags like "(mid.)" or "(pass.)"
+                        const voiceMatch = trans.match(/(\s*\((?:mid|pass)\.\).*)$/);
+                        if (voiceMatch) {
+                            trans = trans.slice(0, -voiceMatch[0].length) + " " + sharedSuffix + voiceMatch[0];
+                        } else {
+                            trans += " " + sharedSuffix;
+                        }
+                    }
+                    return trans;
+                });
+                return altTranslations.join(" / ");
+            });
+            if ((tense || "").toLowerCase().includes("subjunctive")) {
+                const mightVariants = variants.map(v => v.replace(/ may /g, " might ").replace(/ may$/, " might"));
+                mightVariants.forEach(mv => { if (!variants.includes(mv)) variants.push(mv); });
+            }
+            return variants;
+        }
+
         // Detect "am" verbs (e.g. "I am, exist" → verb = "am, exist")
         const isBeVerb = verb.toLowerCase().startsWith("am");
 
         // Build translation for each pronoun variant
-        const variants = pronouns.map(p => buildTenseTranslation(p, verb, tense, isBeVerb, personIdx));
+        const variants = pronouns.map(p => buildTenseTranslation(p, verb, tense, isBeVerb, personIdx, isDeponent));
         // For subjunctive tenses, also accept "might" in place of "may"
         if ((tense || "").toLowerCase().includes("subjunctive")) {
             const mightVariants = variants.map(v => v.replace(/ may /g, " might ").replace(/ may$/, " might"));
@@ -1352,7 +1396,7 @@
         return variants;
     }
 
-    function buildTenseTranslation(pronoun, verb, tense, isBeVerb, personIdx) {
+    function buildTenseTranslation(pronoun, verb, tense, isBeVerb, personIdx, isDeponent) {
         const t = (tense || "").toLowerCase();
 
         // Helper: conjugate "be" for person
@@ -1379,6 +1423,11 @@
         const isMidPass = t.includes("middle/passive") || t.includes("mid/pass");
         const isPassive = t.includes("passive") && !isMidPass;
         const isMiddle = t.includes("middle") && !isMidPass && !isPassive;
+
+        // For deponent verbs, treat mid/pass forms as active (no voice tags)
+        if (isDeponent) {
+            return buildVoiceTranslation(pronoun, verb, t, "active", bePresent, bePast, hasHave);
+        }
 
         // For mid/pass tenses, build BOTH translations
         if (isMidPass) {
@@ -1443,7 +1492,7 @@
         const v = verb.toLowerCase();
         if (v.endsWith("ie")) return verb.slice(0, -2) + "ying";
         if (v.endsWith("e") && !v.endsWith("ee")) return verb.slice(0, -1) + "ing";
-        if (/[aeiou][bdgmnpt]$/.test(v) && v.length <= 5) return verb + verb[verb.length - 1] + "ing";
+        if (/[aeiou][bdgmnpt]$/.test(v) && !/[aeiou]{2}[bdgmnpt]$/.test(v) && v.length <= 5) return verb + verb[verb.length - 1] + "ing";
         return verb + "ing";
     }
 
@@ -1488,8 +1537,8 @@
         return pronoun + " " + verb;
     }
 
-    function verbEnglishDisplay(meaning, personIdx, tense) {
-        return verbEnglishVariants(meaning, personIdx, tense)[0];
+    function verbEnglishDisplay(meaning, personIdx, tense, isDeponent) {
+        return verbEnglishVariants(meaning, personIdx, tense, isDeponent)[0];
     }
 
     // English for imperative forms (2sg, 3sg, 2pl, 3pl → indices 0-3)
@@ -1509,6 +1558,21 @@
         }
 
         const norm = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/^-+/, "").trim();
+        // Expand "X/Y" into contextual alternatives: "I come/go to" → ["I come to", "I go to"]
+        const expandSlash = (str) => {
+            const parts = str.split(";").map(s => s.trim()).filter(Boolean);
+            const results = [];
+            for (const part of parts) {
+                results.push(norm(part));
+                // Find "word/word" patterns and expand with full context
+                const m = part.match(/(\S+)\/(\S+)/);
+                if (m) {
+                    results.push(norm(part.replace(m[0], m[1])));
+                    results.push(norm(part.replace(m[0], m[2])));
+                }
+            }
+            return results;
+        };
         const q = norm(query);
         const matches = [];
 
@@ -1519,8 +1583,8 @@
                 const termN = norm(card.term);
                 const defN = norm(card.definition);
                 const notesN = norm(card.notes || "");
-                // Split definition on "/" to allow searching individual alternatives
-                const defAlts = card.definition.split(/[\/]/).map(s => norm(s.trim())).filter(Boolean);
+                // Expand definition alternatives: "come/go" → ["come", "go", ...]
+                const defAlts = expandSlash(card.definition);
                 const defMatch = defN.includes(q) || defAlts.some(alt => alt.includes(q));
                 if (termN.includes(q) || defMatch || notesN.includes(q)) {
                     matches.push({ type: "card", category: cat.name, catKey, card });
@@ -1534,12 +1598,13 @@
                 const verb = VERB_LEXICON[verbKey];
                 const lexN = norm(verbKey);
                 const meaningN = norm(verb.meaning);
-                // Split meaning on "/" and ";" to allow searching individual alternatives
-                const meaningAlts = verb.meaning.split(/[\/;]/).map(s => norm(s.trim())).filter(Boolean);
+                // Expand meaning alternatives: "I come/go to" → ["I come to", "I go to", ...]
+                const meaningAlts = expandSlash(verb.meaning);
                 const meaningMatch = meaningN.includes(q) || meaningAlts.some(alt => alt.includes(q));
                 let formMatch = false;
                 let matchedInForm = null;
 
+                const verbDeponent = isDeponentVerb(verb);
                 // Helper: check a conjugation group (indicative or subjunctive)
                 const searchGroup = (group, label) => {
                     if (formMatch || !group) return;
@@ -1551,15 +1616,15 @@
                             // Match Greek form
                             if (norm(forms[i]).includes(q)) {
                                 formMatch = true;
-                                matchedInForm = { tense, form: forms[i], personIdx: i, english: verbEnglishDisplay(verb.meaning, i, tense) };
+                                matchedInForm = { tense, form: forms[i], personIdx: i, english: verbEnglishDisplay(verb.meaning, i, tense, verbDeponent) };
                                 return;
                             }
                             // Match English translation (e.g., "he is", "you die")
-                            const engVariants = verbEnglishVariants(verb.meaning, i, tense);
+                            const engVariants = verbEnglishVariants(verb.meaning, i, tense, verbDeponent);
                             for (const eng of engVariants) {
                                 if (norm(eng).includes(q)) {
                                     formMatch = true;
-                                    matchedInForm = { tense, form: forms[i], personIdx: i, english: verbEnglishDisplay(verb.meaning, i, tense) };
+                                    matchedInForm = { tense, form: forms[i], personIdx: i, english: verbEnglishDisplay(verb.meaning, i, tense, verbDeponent) };
                                     return;
                                 }
                             }
@@ -1663,6 +1728,7 @@
         // Determine which form to highlight (matched form from search)
         const hlForm = m.formMatch ? m.formMatch.form : null;
         const hlTense = m.formMatch ? m.formMatch.tense : null;
+        const vDeponent = isDeponentVerb(v);
 
         if (v.indicative) {
             for (const tense in v.indicative) {
@@ -1672,7 +1738,7 @@
                 html += `<div class="dict-conj-block"><h4>${escapeHTML(tense)}</h4><table>`;
                 forms.forEach((f, i) => {
                     if (f !== "--") {
-                        const eng = verbEnglishDisplay(v.meaning, i, tense);
+                        const eng = verbEnglishDisplay(v.meaning, i, tense, vDeponent);
                         const isHL = (f === hlForm && tense === hlTense);
                         html += `<tr class="${isHL ? "dict-highlight" : ""}"><td>${personLabels[i]}</td><td>${escapeHTML(f)} <span class="dict-eng">(${escapeHTML(eng)})</span></td></tr>`;
                     }
@@ -1687,7 +1753,7 @@
                 html += `<div class="dict-conj-block"><h4>${escapeHTML(tense)}</h4><table>`;
                 forms.forEach((f, i) => {
                     if (f !== "--") {
-                        const eng = verbEnglishDisplay(v.meaning, i, tense);
+                        const eng = verbEnglishDisplay(v.meaning, i, tense, vDeponent);
                         const isHL = (f === hlForm && tense === hlTense);
                         html += `<tr class="${isHL ? "dict-highlight" : ""}"><td>${personLabels[i]}</td><td>${escapeHTML(f)} <span class="dict-eng">(${escapeHTML(eng)})</span></td></tr>`;
                     }

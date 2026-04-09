@@ -71,7 +71,7 @@ const CATEGORIES = {
             { term: "οἰκία", definition: "house, home", notes: "" },
             { term: "οἶκος", definition: "house, home", notes: "" },
             { term: "ὄχλος", definition: "crowd, multitude", notes: "" },
-            { term: "παρά", definition: "from (gen); beside (dat); alongside of (acc)", notes: "preposition" },
+            { term: "παρὰ (παρ')", definition: "from (gen); beside, in presence of (dat); alongside of (acc)", notes: "preposition; three-case" },
             { term: "παραβολή", definition: "parable", notes: "" },
             { term: "πρός", definition: "to, towards; with", notes: "preposition + accusative" },
             { term: "ὑπό", definition: "by (gen); under (acc)", notes: "preposition" },
@@ -307,6 +307,8 @@ const CATEGORIES = {
             { term: "τοιοῦτος, -αύτη, -οῦτον", definition: "such, of such a kind", notes: "" },
             { term: "δίκαιος, -αία, -αιον", definition: "right, just, righteous", notes: "adjective" },
             { term: "μέλλω", definition: "I am about to", notes: "verb (+ infinitive)" },
+            { term: "ἀπολύω", definition: "I release", notes: "" },
+            { term: "εἴτε", definition: "if, whether", notes: "conjunction" },
             { term: "δίδωμι", definition: "I give; entrust", notes: "μι verb" },
             { term: "μου (ἐμοῦ)", definition: "my", notes: "genitive personal pronoun" },
             { term: "συνέρχομαι", definition: "I come together, assemble", notes: "deponent verb" },
@@ -319,6 +321,12 @@ const CATEGORIES = {
             { term: "ἵστημι", definition: "I stand, set, place", notes: "μι verb" },
             { term: "ὀνομάζω", definition: "I name, call", notes: "verb" },
             { term: "ὑποτάσσω", definition: "I submit, subject", notes: "verb" },
+            { term: "ἔθνος, -ους, τό", definition: "nation; (pl.) Gentiles", notes: "" },
+            { term: "λοιπός, -ή, -όν", definition: "remaining; rest; finally", notes: "adjective" },
+            { term: "Μωϋσῆς, -έως, ὁ", definition: "Moses", notes: "proper noun" },
+            { term: "παραδίδωμι", definition: "I hand over, betray", notes: "μι verb" },
+            { term: "πίπτω", definition: "I fall", notes: "verb" },
+            { term: "ὑπάρχω", definition: "I am, exist", notes: "verb" },
         ]
     },
 
@@ -579,7 +587,7 @@ const CATEGORIES = {
             { term: "μετά (μετ', μεθ')", definition: "with (gen); after (acc)", notes: "Two-case preposition" },
             { term: "περί", definition: "concerning, about (gen); around (acc)", notes: "Two-case preposition" },
             { term: "ἐπί (ἐπ', ἐφ')", definition: "on, over (gen); on the basis of (dat); on, to, against (acc)", notes: "Three-case preposition" },
-            { term: "παρά (παρ')", definition: "from (gen); beside, in presence of (dat); alongside of (acc)", notes: "Three-case preposition" },
+
             { term: "ὑπέρ", definition: "in behalf of (gen); above (acc)", notes: "Two-case preposition" },
             { term: "ὑπό (ὑπ', ὑφ')", definition: "by (gen); under (acc)", notes: "Two-case: agency with genitive" },
             { term: "σύν", definition: "with, together with", notes: "Takes DATIVE" },
@@ -1258,7 +1266,7 @@ const CHAPTER_MAP = {
     "ἐκ (ἐξ)": 8, "ἡμέρα": 8, "ἦν": 8, "θάλασσα": 8,
     "θάνατος": 8, "ἵνα": 8, "Ἰωάννης": 8, "λέγω": 8,
     "μετά": 8, "οἰκία": 8, "οἶκος": 8, "ὄχλος": 8,
-    "παρά": 8, "παραβολή": 8, "πρός": 8, "ὑπό": 8,
+    "παρὰ (παρ')": 8, "παραβολή": 8, "πρός": 8, "ὑπό": 8,
     // Chapter 9
     "ἀγαθός": 9, "ἀγαπητός": 9, "ἅγιος": 9, "αἰώνιος": 9,
     "ἀλλήλων": 9, "ἀπεκρίθη": 9, "δοῦλος": 9, "ἐάν": 9,
@@ -1355,6 +1363,9 @@ const CHAPTER_MAP = {
     "δίκαιος, -αία, -αιον": 32, "μέλλω": 32,
     // Chapter 33
     "ἀπόλλυμι": 33, "ἀπολύω": 33, "εἴτε": 33,
+    // Chapter 34
+    "δίδωμι": 34, "ἔθνος, -ους, τό": 34, "λοιπός, -ή, -όν": 34,
+    "Μωϋσῆς, -έως, ὁ": 34, "παραδίδωμι": 34, "πίπτω": 34, "ὑπάρχω": 34,
 };
 
 // Maps definition/notes keywords to chapters (for paradigm cards)
@@ -1461,4 +1472,5 @@ const CHAPTER_INFO = {
     31: "Subjunctive Mood",
     32: "Imperative; Conditional",
     33: "-μι Verbs",
+    34: "More -μι Verbs; πίπτω",
 };

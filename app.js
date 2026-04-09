@@ -1336,7 +1336,7 @@
             ["you"],                          // 2sg
             ["he/she/it", "he", "she", "it"], // 3sg
             ["we"],                           // 1pl
-            ["you", "you all"],               // 2pl
+            ["you all"],                       // 2pl
             ["they"],                         // 3pl
         ];
         const pronouns = pronounSets[personIdx];
@@ -1574,6 +1574,7 @@
             return results;
         };
         const q = norm(query);
+        const qRaw = query.toLowerCase().trim();
         const matches = [];
 
         // Search all category cards
@@ -1586,8 +1587,9 @@
                 // Expand definition alternatives: "come/go" → ["come", "go", ...]
                 const defAlts = expandSlash(card.definition);
                 const defMatch = defN.includes(q) || defAlts.some(alt => alt.includes(q));
-                if (termN.includes(q) || defMatch || notesN.includes(q)) {
-                    matches.push({ type: "card", category: cat.name, catKey, card });
+                const termMatch = termN.includes(q);
+                if (termMatch || defMatch || notesN.includes(q)) {
+                    matches.push({ type: "card", category: cat.name, catKey, card, termMatch, defMatch });
                 }
             });
         }
@@ -1663,8 +1665,75 @@
                     }
                 }
 
+                // Check participle forms
+                if (!formMatch && verb.participles) {
+                    for (const ptcpType in verb.participles) {
+                        const ptcpData = verb.participles[ptcpType];
+                        for (const caseName in ptcpData) {
+                            const forms = ptcpData[caseName];
+                            for (let i = 0; i < forms.length; i++) {
+                                if (forms[i] !== "—" && norm(forms[i]).includes(q)) {
+                                    const gLabels = ["M.Sg.", "F.Sg.", "N.Sg.", "M.Pl.", "F.Pl.", "N.Pl."];
+                                    formMatch = true;
+                                    matchedInForm = { tense: ptcpType + " Participle", form: forms[i], english: caseName + " " + (gLabels[i] || "") };
+                                    break;
+                                }
+                            }
+                            if (formMatch) break;
+                        }
+                        if (formMatch) break;
+                    }
+                }
+
                 if (lexN.includes(q) || meaningMatch || formMatch) {
                     matches.push({ type: "verb", verbKey, verb, formMatch: matchedInForm });
+                }
+            }
+        }
+
+        // Search noun lexicon — match lexical form, meaning, or declined forms
+        if (typeof NOUN_LEXICON !== "undefined") {
+            for (const nounKey in NOUN_LEXICON) {
+                const noun = NOUN_LEXICON[nounKey];
+                const lexN = norm(nounKey);
+                const meaningN = norm(noun.meaning);
+                const meaningAlts = expandSlash(noun.meaning);
+                const meaningMatch = meaningN.includes(q) || meaningAlts.some(alt => alt.includes(q));
+                let formMatch = false;
+                let matchedForm = null;
+
+                if (noun.forms) {
+                    for (const caseName in noun.forms) {
+                        const [sg, pl] = noun.forms[caseName];
+                        if (sg !== "—" && norm(sg).includes(q)) {
+                            formMatch = true;
+                            matchedForm = { caseName, form: sg, number: "Sg." };
+                            break;
+                        }
+                        if (pl !== "—" && norm(pl).includes(q)) {
+                            formMatch = true;
+                            matchedForm = { caseName, form: pl, number: "Pl." };
+                            break;
+                        }
+                    }
+                }
+                if (!formMatch && noun.genderForms) {
+                    for (const caseName in noun.genderForms) {
+                        const f = noun.genderForms[caseName];
+                        for (let i = 0; i < f.length; i++) {
+                            if (f[i] !== "—" && norm(f[i]).includes(q)) {
+                                const gLabels = ["M.Sg.", "F.Sg.", "N.Sg.", "M.Pl.", "F.Pl.", "N.Pl."];
+                                formMatch = true;
+                                matchedForm = { caseName, form: f[i], number: gLabels[i] || "" };
+                                break;
+                            }
+                        }
+                        if (formMatch) break;
+                    }
+                }
+
+                if (lexN.includes(q) || meaningMatch || formMatch) {
+                    matches.push({ type: "noun", nounKey, noun, formMatch: matchedForm, termMatch: lexN.includes(q) });
                 }
             }
         }
@@ -1674,18 +1743,59 @@
             return;
         }
 
-        // Sort: exact form matches first, then lexical matches
+        // Sort: exact raw-text matches first, then normalized exact, then starts-with, then contains, then definition-only
         matches.sort((a, b) => {
-            const aExact = a.formMatch ? 0 : 1;
-            const bExact = b.formMatch ? 0 : 1;
-            return aExact - bExact;
+            const rank = (m) => {
+                if (m.type === "card") {
+                    const termRaw = m.card.term.toLowerCase().trim();
+                    const termN = norm(m.card.term);
+                    if (termRaw === qRaw) return 0;        // exact raw match (preserves accents/breathing)
+                    if (termN === q) return 1;             // exact normalized match
+                    if (termN.startsWith(q)) return 2;    // term starts with query
+                    if (m.termMatch) return 3;             // term contains query
+                    return 6;                              // definition/notes match only
+                }
+                if (m.type === "verb") {
+                    const vRaw = m.verbKey.toLowerCase().trim();
+                    if (vRaw === qRaw) return 0.5;
+                    if (norm(m.verbKey) === q) return 1.5;
+                    if (norm(m.verbKey).startsWith(q)) return 2.5;
+                    if (!m.formMatch) return 4;            // verb meaning match
+                    return 5;                              // verb conjugation form match
+                }
+                if (m.type === "noun") {
+                    const nRaw = m.nounKey.toLowerCase().trim();
+                    if (nRaw === qRaw) return 0.5;
+                    if (norm(m.nounKey) === q) return 1.5;
+                    if (norm(m.nounKey).startsWith(q)) return 2.5;
+                    if (!m.formMatch) return 4;
+                    return 5;
+                }
+                return 7;
+            };
+            return rank(a) - rank(b);
         });
 
+        // Deduplicate: if same base term appears in multiple categories, keep both but group them
+        const seen = new Set();
+        const deduped = [];
+        for (const m of matches) {
+            const key = m.type === "card" ? norm(m.card.term) : m.type === "verb" ? norm(m.verbKey) : norm(m.nounKey);
+            // Allow same term from different categories, but skip exact duplicates
+            const uniqueKey = key + "|" + (m.type === "card" ? m.catKey : m.type);
+            if (!seen.has(uniqueKey)) {
+                seen.add(uniqueKey);
+                deduped.push(m);
+            }
+        }
+
         // Limit to 50 results
-        const shown = matches.slice(0, 50);
+        const shown = deduped.slice(0, 50);
         results.innerHTML = shown.map(m => {
             if (m.type === "card") {
                 return renderDictCard(m);
+            } else if (m.type === "noun") {
+                return renderDictNoun(m);
             } else {
                 return renderDictVerb(m);
             }
@@ -1789,7 +1899,80 @@
                 html += `</table></div>`;
             }
         }
+        if (v.participles) {
+            const caseLabels = ["Nominative", "Genitive", "Dative", "Accusative"];
+            for (const ptcpType in v.participles) {
+                const ptcpData = v.participles[ptcpType];
+                html += `<div class="dict-conj-block"><h4>${escapeHTML(ptcpType)} Participle</h4>`;
+                html += `<table><tr><th></th><th colspan="3">Singular</th><th colspan="3">Plural</th></tr>`;
+                html += `<tr><th></th><th>M.</th><th>F.</th><th>N.</th><th>M.</th><th>F.</th><th>N.</th></tr>`;
+                caseLabels.forEach(caseName => {
+                    const f = ptcpData[caseName];
+                    if (!f) return;
+                    html += `<tr><td><strong>${caseName}</strong></td>`;
+                    f.forEach(form => {
+                        const isHL = (form === hlForm);
+                        html += `<td class="${isHL ? "dict-highlight" : ""}">${escapeHTML(form)}</td>`;
+                    });
+                    html += `</tr>`;
+                });
+                html += `</table></div>`;
+            }
+        }
         html += `</div></details></div>`;
+        return html;
+    }
+
+    function renderDictNoun(m) {
+        const n = m.noun;
+        const typeLabel = n.type || (n.gender + ", " + n.declension + " declension");
+        const catLabel = n.type === "article" ? "Article" : n.type === "pronoun" ? "Pronoun" : n.type === "adjective" ? "Adjective" : "Noun Lexicon";
+        let html = `<div class="dict-card">
+            <div class="dict-card-header">
+                <span class="dict-term">${escapeHTML(m.nounKey)}</span>
+                <span class="dict-category">${escapeHTML(catLabel)}</span>
+            </div>
+            <div class="dict-def">${escapeHTML(n.meaning)}</div>`;
+        if (n.gender && n.declension) {
+            html += `<div class="dict-notes">${escapeHTML(n.gender + ", " + n.declension + " declension")}</div>`;
+        }
+        if (m.formMatch) {
+            const fm = m.formMatch;
+            html += `<div class="dict-form-match"><span class="dict-form-greek">${escapeHTML(fm.form)}</span><span class="dict-form-tense">${escapeHTML(fm.caseName)} ${escapeHTML(fm.number)}</span></div>`;
+        }
+        const caseLabels = ["Nominative", "Genitive", "Dative", "Accusative"];
+        const hlForm = m.formMatch ? m.formMatch.form : null;
+
+        if (n.genderForms) {
+            // Multi-gender table (article, pronouns, adjectives)
+            html += `<details class="dict-conjugations"><summary>View declension</summary><div class="dict-conj-grid">`;
+            html += `<div class="dict-conj-block"><h4>${escapeHTML(m.nounKey)}</h4><table>`;
+            html += `<tr><th></th><th colspan="3">Singular</th><th colspan="3">Plural</th></tr>`;
+            html += `<tr><th></th><th>M.</th><th>F.</th><th>N.</th><th>M.</th><th>F.</th><th>N.</th></tr>`;
+            caseLabels.forEach(caseName => {
+                if (n.genderForms[caseName]) {
+                    const f = n.genderForms[caseName]; // [m.sg, f.sg, n.sg, m.pl, f.pl, n.pl]
+                    const isHL = f.some(v => v === hlForm);
+                    html += `<tr class="${isHL ? "dict-highlight" : ""}"><td><strong>${caseName.substring(0,3)}.</strong></td>`;
+                    f.forEach(v => { html += `<td>${escapeHTML(v)}</td>`; });
+                    html += `</tr>`;
+                }
+            });
+            html += `</table></div></div></details></div>`;
+        } else {
+            // Simple 2-column table (nouns, personal pronouns)
+            html += `<details class="dict-conjugations"><summary>View declension</summary><div class="dict-conj-grid">`;
+            html += `<div class="dict-conj-block"><h4>Declension of ${escapeHTML(m.nounKey)}</h4><table>`;
+            html += `<tr><th></th><th>Singular</th><th>Plural</th></tr>`;
+            caseLabels.forEach(caseName => {
+                if (n.forms[caseName]) {
+                    const [sg, pl] = n.forms[caseName];
+                    const isHL = (sg === hlForm || pl === hlForm);
+                    html += `<tr class="${isHL ? "dict-highlight" : ""}"><td><strong>${caseName.substring(0,3)}.</strong></td><td>${escapeHTML(sg)}</td><td>${escapeHTML(pl)}</td></tr>`;
+                }
+            });
+            html += `</table></div></div></details></div>`;
+        }
         return html;
     }
 

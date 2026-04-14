@@ -77,6 +77,7 @@
         bindFillBlank();
         bindMatching();
         bindTrueFalse();
+        bindBrowse();
         bindResults();
         bindParadigm();
         bindDictionary();
@@ -89,7 +90,17 @@
             try {
                 data = JSON.parse(saved);
                 for (const key in CATEGORIES) {
-                    if (!data[key]) data[key] = JSON.parse(JSON.stringify(CATEGORIES[key]));
+                    if (!data[key]) {
+                        data[key] = JSON.parse(JSON.stringify(CATEGORIES[key]));
+                    } else {
+                        // Merge any new cards from CATEGORIES that aren't in saved data
+                        const existingTerms = new Set(data[key].cards.map(c => c.term));
+                        for (const card of CATEGORIES[key].cards) {
+                            if (!existingTerms.has(card.term)) {
+                                data[key].cards.push(JSON.parse(JSON.stringify(card)));
+                            }
+                        }
+                    }
                 }
             } catch { data = JSON.parse(JSON.stringify(CATEGORIES)); }
         } else {
@@ -306,6 +317,7 @@
             case "fill-blank": startFillBlank(); break;
             case "matching": startMatching(); break;
             case "true-false": startTrueFalse(); break;
+            case "browse": startBrowse(); break;
         }
     }
     function getReverse() { return studyOpts.reverse; }
@@ -1049,14 +1061,29 @@
         const fb = document.getElementById("fib-feedback");
         score.total++;
         const normalize = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-        // Accept exact match OR any individual meaning (split by comma/semicolon)
         const answerN = normalize(answer);
-        const acceptedForms = [normalize(correct)];
-        correct.split(/[;,]/).forEach(part => {
-            const p = normalize(part);
-            if (p) acceptedForms.push(p);
-        });
-        if (acceptedForms.some(f => f === answerN)) {
+        const answerTranslit = translitToGreek(answerN);
+        // Build accepted forms: full answer, each comma/semicolon part, and "I " prepended to verb parts
+        const buildAccepted = (correct) => {
+            const acc = new Set([normalize(correct)]);
+            const parts = correct.split(/[;,]/).map(p => p.trim()).filter(Boolean);
+            parts.forEach(p => acc.add(normalize(p)));
+            // If definition is like "I take, receive" → also accept "I receive"
+            const iVerb = parts.find(p => /^I /i.test(p));
+            if (iVerb) {
+                parts.forEach(p => {
+                    if (!/^I /i.test(p)) acc.add(normalize("I " + p));
+                });
+                // Also accept without "I " prefix
+                parts.forEach(p => acc.add(normalize(p.replace(/^I /i, ""))));
+            }
+            // Strip leading "I " from user answer and try matching parts
+            const answerNoI = answerN.replace(/^i /, "");
+            if (answerNoI !== answerN) parts.forEach(p => acc.add(normalize(p.replace(/^I /i, ""))));
+            return acc;
+        };
+        const acceptedForms = buildAccepted(correct);
+        if (acceptedForms.has(answerN) || (answerTranslit && acceptedForms.has(answerTranslit))) {
             score.correct++;
             fb.innerHTML = `Correct! <span class="all-meanings">(${correct})</span>`;
             fb.className = "feedback correct";
@@ -1197,6 +1224,55 @@
         fb.classList.remove("hidden");
         document.getElementById("tf-next").classList.remove("hidden");
         document.getElementById("tf-score").textContent = `${score.correct}/${score.total}`;
+    }
+
+    // ============================================================
+    // BROWSE
+    // ============================================================
+    let browseCards = [];
+    function bindBrowse() {
+        document.getElementById("browse-filter").addEventListener("input", function() {
+            renderBrowseList(this.value);
+        });
+    }
+    function startBrowse() {
+        browseCards = studyCards.slice(); // already filtered by chapter
+        // sort alphabetically by term for readability
+        browseCards.sort((a, b) => {
+            const ta = (a.term || "").toLowerCase();
+            const tb = (b.term || "").toLowerCase();
+            return ta < tb ? -1 : ta > tb ? 1 : 0;
+        });
+        document.getElementById("browse-filter").value = "";
+        showView("browse");
+        renderBrowseList("");
+    }
+    function renderBrowseList(filter) {
+        const list = document.getElementById("browse-list");
+        const filterN = filter.trim().toLowerCase();
+        const filtered = filterN
+            ? browseCards.filter(c => {
+                const termN = (c.term || "").toLowerCase();
+                const defN = (c.definition || "").toLowerCase();
+                return termN.includes(filterN) || defN.includes(filterN);
+            })
+            : browseCards;
+        document.getElementById("browse-count").textContent =
+            filtered.length + " / " + browseCards.length + " items";
+        if (filtered.length === 0) {
+            list.innerHTML = `<p class="browse-empty">No items match "${escapeHTML(filter)}".</p>`;
+            return;
+        }
+        list.innerHTML = filtered.map(c => {
+            const term = escapeHTML(c.term || "");
+            const def = escapeHTML(c.definition || "");
+            const chap = c.chapter ? `Ch. ${escapeHTML(String(c.chapter))}` : "";
+            return `<div class="browse-item">
+                <span class="browse-term">${term}</span>
+                <span class="browse-def">${def}</span>
+                ${chap ? `<span class="browse-chapter">${chap}</span>` : ""}
+            </div>`;
+        }).join("");
     }
 
     // ============================================================
@@ -1550,6 +1626,55 @@
         return prefix + verb + "!";
     }
 
+    // Irregular English past participles for common verbs
+    const IRREGULAR_PAST = {
+        'write':'written','come':'come','go':'gone','take':'taken','give':'given',
+        'know':'known','see':'seen','find':'found','speak':'spoken','hear':'heard',
+        'say':'said','rise':'risen','eat':'eaten','drink':'drunk','send':'sent',
+        'throw':'thrown','fall':'fallen','begin':'begun','bear':'borne','become':'become',
+        'bring':'brought','build':'built','buy':'bought','catch':'caught','choose':'chosen',
+        'draw':'drawn','drive':'driven','feel':'felt','get':'got','grow':'grown',
+        'have':'had','hold':'held','keep':'kept','leave':'left','lead':'led',
+        'lose':'lost','make':'made','put':'put','read':'read','run':'run',
+        'sell':'sold','show':'shown','sit':'sat','stand':'stood','teach':'taught',
+        'tell':'told','think':'thought','understand':'understood','win':'won',
+        'receive':'received','am':'been','exist':'existed','die':'died',
+        'beget':'begotten','forgive':'forgiven','break':'broken','wake':'woken',
+        'be able':'been able','loose':'loosed','believe':'believed',
+    };
+
+    function participleEnglish(meaning, ptcpType) {
+        let base = meaning.replace(/;.*$/, "").replace(/,.*$/, "").trim();
+        if (base.toLowerCase().startsWith("i ")) base = base.substring(2);
+        base = base.trim().toLowerCase();
+
+        // Generate -ing form
+        let ing;
+        if (base.endsWith('ie')) ing = base.slice(0, -2) + 'ying';
+        else if (base === 'be' || base === 'see') ing = base + 'ing';
+        else if (base.endsWith('ee')) ing = base + 'ing';
+        else if (base.endsWith('e')) ing = base.slice(0, -1) + 'ing';
+        else if (/[^aeiou][aeiou][^aeiouwxy]$/.test(base) && base.length <= 4) ing = base + base.slice(-1) + 'ing';
+        else ing = base + 'ing';
+
+        // Generate past participle
+        let past = IRREGULAR_PAST[base];
+        if (!past) {
+            if (base.endsWith('e')) past = base + 'd';
+            else if (base.endsWith('y') && !/[aeiou]y$/.test(base)) past = base.slice(0, -1) + 'ied';
+            else past = base + 'ed';
+        }
+
+        const t = ptcpType.toLowerCase();
+        if (t.includes('present') && t.includes('active')) return ing;
+        if (t.includes('present')) return 'being ' + past;
+        if (t.includes('aorist') && t.includes('passive')) return 'having been ' + past;
+        if (t.includes('aorist')) return 'having ' + past;
+        if (t.includes('perfect') && (t.includes('middle') || t.includes('passive'))) return 'having been ' + past;
+        if (t.includes('perfect')) return 'having ' + past;
+        return ing;
+    }
+
     function searchDictionary(query) {
         const results = document.getElementById("dict-results");
         if (!query) {
@@ -1575,6 +1700,8 @@
         };
         const q = norm(query);
         const qRaw = query.toLowerCase().trim();
+        // Also try treating input as a transliteration (e.g. "theos" → "θεος")
+        const qTranslit = translitToGreek(q);
         const matches = [];
 
         // Search all category cards
@@ -1587,7 +1714,7 @@
                 // Expand definition alternatives: "come/go" → ["come", "go", ...]
                 const defAlts = expandSlash(card.definition);
                 const defMatch = defN.includes(q) || defAlts.some(alt => alt.includes(q));
-                const termMatch = termN.includes(q);
+                const termMatch = termN.includes(q) || (qTranslit && termN.includes(qTranslit));
                 if (termMatch || defMatch || notesN.includes(q)) {
                     matches.push({ type: "card", category: cat.name, catKey, card, termMatch, defMatch });
                 }
@@ -1603,6 +1730,7 @@
                 // Expand meaning alternatives: "I come/go to" → ["I come to", "I go to", ...]
                 const meaningAlts = expandSlash(verb.meaning);
                 const meaningMatch = meaningN.includes(q) || meaningAlts.some(alt => alt.includes(q));
+                const lexTranslitMatch = qTranslit && lexN.includes(qTranslit);
                 let formMatch = false;
                 let matchedInForm = null;
 
@@ -1674,8 +1802,9 @@
                             for (let i = 0; i < forms.length; i++) {
                                 if (forms[i] !== "—" && norm(forms[i]).includes(q)) {
                                     const gLabels = ["M.Sg.", "F.Sg.", "N.Sg.", "M.Pl.", "F.Pl.", "N.Pl."];
+                                    const ptcpEng = participleEnglish(verb.meaning, ptcpType);
                                     formMatch = true;
-                                    matchedInForm = { tense: ptcpType + " Participle", form: forms[i], english: caseName + " " + (gLabels[i] || "") };
+                                    matchedInForm = { tense: ptcpType + " Participle", form: forms[i], english: ptcpEng + " (" + caseName + " " + (gLabels[i] || "") + ")" };
                                     break;
                                 }
                             }
@@ -1685,7 +1814,7 @@
                     }
                 }
 
-                if (lexN.includes(q) || meaningMatch || formMatch) {
+                if (lexN.includes(q) || lexTranslitMatch || meaningMatch || formMatch) {
                     matches.push({ type: "verb", verbKey, verb, formMatch: matchedInForm });
                 }
             }
@@ -1732,8 +1861,9 @@
                     }
                 }
 
-                if (lexN.includes(q) || meaningMatch || formMatch) {
-                    matches.push({ type: "noun", nounKey, noun, formMatch: matchedForm, termMatch: lexN.includes(q) });
+                const nounTranslitMatch = qTranslit && lexN.includes(qTranslit);
+                if (lexN.includes(q) || nounTranslitMatch || meaningMatch || formMatch) {
+                    matches.push({ type: "noun", nounKey, noun, formMatch: matchedForm, termMatch: lexN.includes(q) || nounTranslitMatch });
                 }
             }
         }
@@ -1749,8 +1879,10 @@
                 if (m.type === "card") {
                     const termRaw = m.card.term.toLowerCase().trim();
                     const termN = norm(m.card.term);
-                    if (termRaw === qRaw) return 0;        // exact raw match (preserves accents/breathing)
-                    if (termN === q) return 1;             // exact normalized match
+                    const defN = norm(m.card.definition);
+                    if (termRaw === qRaw) return 0;        // exact raw match
+                    if (termN === q) return 1;             // exact normalized term match
+                    if (defN === q) return 1.2;            // definition is exactly the query (e.g. "the")
                     if (termN.startsWith(q)) return 2;    // term starts with query
                     if (m.termMatch) return 3;             // term contains query
                     return 6;                              // definition/notes match only
@@ -1768,6 +1900,11 @@
                     if (nRaw === qRaw) return 0.5;
                     if (norm(m.nounKey) === q) return 1.5;
                     if (norm(m.nounKey).startsWith(q)) return 2.5;
+                    if (m.formMatch && norm(m.formMatch.form) === q) return 2;  // exact form match
+                    // meaning is exactly the query OR the query is the first word of the meaning
+                    const meaningN = norm(m.noun.meaning || "");
+                    const meaningWords = meaningN.split(/[\s,;()]+/).filter(Boolean);
+                    if (!m.formMatch && (meaningN === q || (meaningWords[0] === q))) return 1.3;
                     if (!m.formMatch) return 4;
                     return 5;
                 }
@@ -1776,12 +1913,30 @@
             return rank(a) - rank(b);
         });
 
-        // Deduplicate: if same base term appears in multiple categories, keep both but group them
+        // Deduplicate: prefer noun/verb lexicon entries over plain vocab cards for the same term.
+        // Build sets of all Greek forms covered by noun-lexicon entries (for suppression of paradigm cards)
+        const nounCoveredForms = new Set();
+        const verbCoveredForms = new Set();
+        for (const m of matches) {
+            if (m.type === "noun") {
+                nounCoveredForms.add(norm(m.nounKey));
+                const n = m.noun;
+                if (n.forms) { for (const c in n.forms) { const [sg,pl] = n.forms[c]; nounCoveredForms.add(norm(sg)); nounCoveredForms.add(norm(pl)); } }
+                if (n.genderForms) { for (const c in n.genderForms) { n.genderForms[c].forEach(f => nounCoveredForms.add(norm(f))); } }
+            }
+            if (m.type === "verb") {
+                verbCoveredForms.add(norm(m.verbKey));
+            }
+        }
         const seen = new Set();
         const deduped = [];
         for (const m of matches) {
             const key = m.type === "card" ? norm(m.card.term) : m.type === "verb" ? norm(m.verbKey) : norm(m.nounKey);
-            // Allow same term from different categories, but skip exact duplicates
+            // Suppress vocab/paradigm card if a richer lexicon entry covers this exact form
+            if (m.type === "card") {
+                const cardNorm = norm(m.card.term);
+                if (nounCoveredForms.has(cardNorm) || verbCoveredForms.has(cardNorm)) continue;
+            }
             const uniqueKey = key + "|" + (m.type === "card" ? m.catKey : m.type);
             if (!seen.has(uniqueKey)) {
                 seen.add(uniqueKey);
@@ -1899,17 +2054,19 @@
                 html += `</table></div>`;
             }
         }
+        html += `</div>`; // close dict-conj-grid
         if (v.participles) {
             const caseLabels = ["Nominative", "Genitive", "Dative", "Accusative"];
+            html += `<div class="dict-participles">`;
             for (const ptcpType in v.participles) {
                 const ptcpData = v.participles[ptcpType];
-                html += `<div class="dict-conj-block"><h4>${escapeHTML(ptcpType)} Participle</h4>`;
-                html += `<table><tr><th></th><th colspan="3">Singular</th><th colspan="3">Plural</th></tr>`;
+                html += `<div class="dict-conj-block dict-conj-block--wide"><h4>${escapeHTML(ptcpType)} Participle</h4>`;
+                html += `<table class="dict-ptcp-table"><tr><th></th><th colspan="3">Singular</th><th colspan="3">Plural</th></tr>`;
                 html += `<tr><th></th><th>M.</th><th>F.</th><th>N.</th><th>M.</th><th>F.</th><th>N.</th></tr>`;
                 caseLabels.forEach(caseName => {
                     const f = ptcpData[caseName];
                     if (!f) return;
-                    html += `<tr><td><strong>${caseName}</strong></td>`;
+                    html += `<tr><td class="dict-ptcp-case"><strong>${caseName}</strong></td>`;
                     f.forEach(form => {
                         const isHL = (form === hlForm);
                         html += `<td class="${isHL ? "dict-highlight" : ""}">${escapeHTML(form)}</td>`;
@@ -1918,8 +2075,9 @@
                 });
                 html += `</table></div>`;
             }
+            html += `</div>`;
         }
-        html += `</div></details></div>`;
+        html += `</details></div>`;
         return html;
     }
 
@@ -1944,17 +2102,20 @@
         const hlForm = m.formMatch ? m.formMatch.form : null;
 
         if (n.genderForms) {
-            // Multi-gender table (article, pronouns, adjectives)
-            html += `<details class="dict-conjugations"><summary>View declension</summary><div class="dict-conj-grid">`;
-            html += `<div class="dict-conj-block"><h4>${escapeHTML(m.nounKey)}</h4><table>`;
+            // Multi-gender table (article, pronouns, adjectives) — wide layout
+            html += `<details class="dict-conjugations"><summary>View declension</summary>`;
+            html += `<div class="dict-participles"><div class="dict-conj-block dict-conj-block--wide">`;
+            html += `<table class="dict-ptcp-table">`;
             html += `<tr><th></th><th colspan="3">Singular</th><th colspan="3">Plural</th></tr>`;
             html += `<tr><th></th><th>M.</th><th>F.</th><th>N.</th><th>M.</th><th>F.</th><th>N.</th></tr>`;
             caseLabels.forEach(caseName => {
                 if (n.genderForms[caseName]) {
                     const f = n.genderForms[caseName]; // [m.sg, f.sg, n.sg, m.pl, f.pl, n.pl]
-                    const isHL = f.some(v => v === hlForm);
-                    html += `<tr class="${isHL ? "dict-highlight" : ""}"><td><strong>${caseName.substring(0,3)}.</strong></td>`;
-                    f.forEach(v => { html += `<td>${escapeHTML(v)}</td>`; });
+                    html += `<tr><td class="dict-ptcp-case"><strong>${caseName.substring(0,3)}.</strong></td>`;
+                    f.forEach(v => {
+                        const isHL = (v === hlForm);
+                        html += `<td class="${isHL ? "dict-highlight" : ""}">${escapeHTML(v)}</td>`;
+                    });
                     html += `</tr>`;
                 }
             });
@@ -1974,6 +2135,37 @@
             html += `</table></div></div></details></div>`;
         }
         return html;
+    }
+
+    // ============================================================
+    // TRANSLITERATION (Latin → Greek, normalized no-accent)
+    // ============================================================
+    // Maps common Latin transliterations to normalized Greek (no accents/breathings).
+    // Used so users can type "theos" and match "θεος" (normalized θεός).
+    function translitToGreek(latin) {
+        if (!latin) return "";
+        // Only process if input looks like Latin (has a-z chars but no Greek)
+        if (/[\u0370-\u03ff\u1f00-\u1fff]/.test(latin)) return ""; // already Greek
+        if (!/[a-z]/.test(latin)) return "";
+        let s = latin.toLowerCase().trim();
+        // Multi-char sequences first (order matters)
+        s = s.replace(/ps/g, "ψ");
+        s = s.replace(/ph/g, "φ");
+        s = s.replace(/th/g, "θ");
+        s = s.replace(/ch/g, "χ");
+        s = s.replace(/ou/g, "ου");
+        s = s.replace(/ng/g, "γγ");
+        s = s.replace(/nk/g, "γκ");
+        s = s.replace(/nx/g, "γξ");
+        s = s.replace(/nc/g, "γχ");
+        s = s.replace(/ks|x/g, "ξ");
+        // Single chars
+        const map = { a:"α", b:"β", g:"γ", d:"δ", e:"ε", z:"ζ", h:"η", i:"ι",
+                      k:"κ", l:"λ", m:"μ", n:"ν", o:"ο", p:"π", r:"ρ", s:"σ",
+                      t:"τ", u:"υ", y:"υ", f:"φ", w:"ω", q:"θ", c:"κ" };
+        s = s.replace(/[a-z]/g, c => map[c] || c);
+        // Normalize result (strip any remaining non-Greek)
+        return s;
     }
 
     // ============================================================

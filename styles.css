@@ -777,6 +777,70 @@ main {
 .verb-tag button:hover { opacity: 1; }
 
 /* ---- RESULTS ---- */
+/* ============================================================
+   BROWSE VIEW
+   ============================================================ */
+.browse-search-bar {
+    padding: 0.75rem 0 0.5rem;
+    max-width: 420px;
+}
+.browse-filter-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-family: var(--font-ui);
+    background: var(--surface);
+    color: var(--text-1);
+    outline: none;
+    transition: border-color 0.15s;
+}
+.browse-filter-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.browse-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 0.5rem;
+    padding-bottom: 2rem;
+}
+.browse-item {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.55rem 0.25rem;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.9rem;
+}
+.browse-item:first-child { border-top: 1px solid var(--border-light); }
+.browse-term {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    color: var(--text-1);
+    min-width: 160px;
+    flex-shrink: 0;
+}
+.browse-def {
+    color: var(--text-2);
+    font-family: var(--font-ui);
+    font-size: 0.88rem;
+}
+.browse-chapter {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-3);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.browse-empty {
+    padding: 2rem 0;
+    color: var(--text-3);
+    font-size: 0.9rem;
+}
+
 .results-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -1064,6 +1128,46 @@ main {
     width: 55px;
 }
 .dict-conj-block tr:last-child td { border-bottom: none; }
+.dict-participles {
+    margin-top: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 0.75rem;
+}
+.dict-conj-block--wide {
+    min-width: 0;
+}
+.dict-ptcp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+}
+.dict-ptcp-table th {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-3);
+    padding: 3px 5px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-light);
+}
+.dict-ptcp-table td {
+    padding: 3px 5px;
+    border-bottom: 1px solid var(--border-light);
+    font-family: var(--font-serif);
+    text-align: center;
+    font-size: 0.8rem;
+}
+.dict-ptcp-case {
+    font-family: var(--font-ui) !important;
+    font-size: 0.7rem !important;
+    color: var(--text-3);
+    text-align: left !important;
+    white-space: nowrap;
+    padding-right: 6px !important;
+}
+.dict-ptcp-table tr:last-child td { border-bottom: none; }
+.dict-ptcp-table th:first-child { text-align: left; }
 .dict-eng {
     font-family: var(--font-ui);
     font-size: 0.75rem;

@@ -308,6 +308,7 @@ const CATEGORIES = {
             { term: "δίκαιος, -αία, -αιον", definition: "right, just, righteous", notes: "adjective" },
             { term: "μέλλω", definition: "I am about to", notes: "verb (+ infinitive)" },
             { term: "ἀπολύω", definition: "I release", notes: "" },
+            { term: "ἀπόλλυμι", definition: "I destroy, kill (act); I perish, die (mid)", notes: "μι verb" },
             { term: "εἴτε", definition: "if, whether", notes: "conjunction" },
             { term: "δίδωμι", definition: "I give; entrust", notes: "μι verb" },
             { term: "μου (ἐμοῦ)", definition: "my", notes: "genitive personal pronoun" },
@@ -327,6 +328,22 @@ const CATEGORIES = {
             { term: "παραδίδωμι", definition: "I hand over, betray", notes: "μι verb" },
             { term: "πίπτω", definition: "I fall", notes: "verb" },
             { term: "ὑπάρχω", definition: "I am, exist", notes: "verb" },
+            // Additional vocabulary
+            { term: "ἁγιάζω", definition: "I consecrate, sanctify", notes: "verb" },
+            { term: "ἀμαρτάνω", definition: "I sin", notes: "verb" },
+            { term: "ἀμαρτωλός, -όν", definition: "sinful (adj); sinner (noun)", notes: "" },
+            { term: "ἀνάστασις, -εως, ἡ", definition: "resurrection", notes: "3rd declension" },
+            { term: "ἀπαγγέλλω", definition: "I report; tell", notes: "verb" },
+            { term: "διακονέω", definition: "I serve", notes: "ε-contract verb" },
+            { term: "διακονία, -ας, ἡ", definition: "service", notes: "" },
+            { term: "δικαιόω", definition: "I justify; vindicate", notes: "ο-contract verb" },
+            { term: "θλῖψις, -εως, ἡ", definition: "affliction, tribulation", notes: "3rd declension" },
+            { term: "ἱλαστήριον, -ου, τό", definition: "propitiation, expiation, place of atonement", notes: "" },
+            { term: "σταυρόω", definition: "I crucify", notes: "ο-contract verb" },
+            { term: "σωτήρ, -ῆρος, ὁ", definition: "savior; deliverer", notes: "3rd declension" },
+            { term: "σωτηρία, -ας, ἡ", definition: "salvation; deliverance", notes: "" },
+            { term: "φανερόω", definition: "I reveal, make known", notes: "ο-contract verb" },
+            { term: "φόβος, -ου, ὁ", definition: "fear; reverence", notes: "" },
         ]
     },
 
@@ -972,6 +989,164 @@ const PARADIGM_TABLES = {
                 ["-ειν", "-εσθαι", "-εσθαι"],
                 ["-σαι", "-σασθαι", "-θηναι"],
                 ["-κεναι", "-σθαι", "-σθαι"]
+            ]
+        },
+        {
+            title: "Present M/P Subjunctive",
+            cols: ["Singular", "Plural"],
+            rows: ["1st Person", "2nd Person", "3rd Person"],
+            cells: [
+                ["-ωμαι", "-ωμεθα"],
+                ["-ῃ", "-ησθε"],
+                ["-ηται", "-ωνται"]
+            ]
+        },
+        {
+            title: "Aorist Active Subjunctive",
+            cols: ["Singular", "Plural"],
+            rows: ["1st Person", "2nd Person", "3rd Person"],
+            cells: [
+                ["-ω", "-ωμεν"],
+                ["-ῃς", "-ητε"],
+                ["-ῃ", "-ωσι(ν)"]
+            ]
+        },
+        {
+            title: "Aorist Middle Subjunctive",
+            cols: ["Singular", "Plural"],
+            rows: ["1st Person", "2nd Person", "3rd Person"],
+            cells: [
+                ["-ωμαι", "-ωμεθα"],
+                ["-ῃ", "-ησθε"],
+                ["-ηται", "-ωνται"]
+            ]
+        },
+        {
+            title: "Aorist Passive Subjunctive",
+            cols: ["Singular", "Plural"],
+            rows: ["1st Person", "2nd Person", "3rd Person"],
+            cells: [
+                ["-θῶ", "-θῶμεν"],
+                ["-θῇς", "-θῆτε"],
+                ["-θῇ", "-θῶσι(ν)"]
+            ]
+        },
+        {
+            title: "Contract Verb Subjunctive",
+            cols: ["-άω contract", "-έω contract", "-όω contract"],
+            rows: ["1st Sg", "2nd Sg", "3rd Sg", "1st Pl", "2nd Pl", "3rd Pl"],
+            cells: [
+                ["-ῶ", "-ῶ", "-ῶ"],
+                ["-ᾷς", "-ῇς", "-οῖς"],
+                ["-ᾷ", "-ῇ", "-οῖ"],
+                ["-ῶμεν", "-ῶμεν", "-ῶμεν"],
+                ["-ᾶτε", "-ῆτε", "-ῶτε"],
+                ["-ῶσι(ν)", "-ῶσι(ν)", "-ῶσι(ν)"]
+            ]
+        },
+        {
+            title: "Imperatives — Active",
+            cols: ["Present", "1st Aorist"],
+            rows: ["2nd Sg", "3rd Sg", "2nd Pl", "3rd Pl"],
+            cells: [
+                ["-ε", "-σον"],
+                ["-έτω", "-σάτω"],
+                ["-ετε", "-σατε"],
+                ["-έτωσαν", "-σάτωσαν"]
+            ]
+        },
+        {
+            title: "Imperatives — Middle",
+            cols: ["Present", "1st Aorist"],
+            rows: ["2nd Sg", "3rd Sg", "2nd Pl", "3rd Pl"],
+            cells: [
+                ["-ου", "-σαι"],
+                ["-έσθω", "-σάσθω"],
+                ["-εσθε", "-σασθε"],
+                ["-έσθωσαν", "-σάσθωσαν"]
+            ]
+        },
+        {
+            title: "Imperatives — Passive",
+            cols: ["Present", "1st Aorist"],
+            rows: ["2nd Sg", "3rd Sg", "2nd Pl", "3rd Pl"],
+            cells: [
+                ["-ου", "-θητι"],
+                ["-έσθω", "-θήτω"],
+                ["-εσθε", "-θητε"],
+                ["-έσθωσαν", "-θήτωσαν"]
+            ]
+        },
+        {
+            title: "Imperatives — εἰμί",
+            cols: ["Form"],
+            rows: ["2nd Sg", "3rd Sg", "2nd Pl", "3rd Pl"],
+            cells: [
+                ["ἴσθι"],
+                ["ἔστω"],
+                ["ἔστε"],
+                ["ἔστωσαν"]
+            ]
+        },
+        {
+            title: "δίδωμι — Present Active Indicative",
+            cols: ["Singular", "Plural"],
+            rows: ["1st Person", "2nd Person", "3rd Person"],
+            cells: [
+                ["δίδωμι", "δίδομεν"],
+                ["δίδως", "δίδοτε"],
+                ["δίδωσι(ν)", "διδόασι(ν)"]
+            ]
+        },
+        {
+            title: "δίδωμι — Imperfect Active Indicative",
+            cols: ["Singular", "Plural"],
+            rows: ["1st Person", "2nd Person", "3rd Person"],
+            cells: [
+                ["ἐδίδουν", "ἐδίδομεν"],
+                ["ἐδίδους", "ἐδίδοτε"],
+                ["ἐδίδου", "ἐδίδουν"]
+            ]
+        },
+        {
+            title: "δίδωμι — Aorist Active Indicative",
+            cols: ["Singular", "Plural"],
+            rows: ["1st Person", "2nd Person", "3rd Person"],
+            cells: [
+                ["ἔδωκα", "ἐδώκαμεν"],
+                ["ἔδωκας", "ἐδώκατε"],
+                ["ἔδωκε(ν)", "ἔδωκαν"]
+            ]
+        },
+        {
+            title: "δίδωμι — Future Active Indicative",
+            cols: ["Singular", "Plural"],
+            rows: ["1st Person", "2nd Person", "3rd Person"],
+            cells: [
+                ["δώσω", "δώσομεν"],
+                ["δώσεις", "δώσετε"],
+                ["δώσει", "δώσουσι(ν)"]
+            ]
+        },
+        {
+            title: "δίδωμι — Perfect Active Indicative",
+            cols: ["Singular", "Plural"],
+            rows: ["1st Person", "2nd Person", "3rd Person"],
+            cells: [
+                ["δέδωκα", "δεδώκαμεν"],
+                ["δέδωκας", "δεδώκατε"],
+                ["δέδωκε(ν)", "δεδώκασι(ν)"]
+            ]
+        },
+        {
+            title: "δίδωμι — Imperative Active",
+            cols: ["Present", "2nd Aorist"],
+            rows: ["2nd Sg", "3rd Sg", "2nd Pl", "3rd Pl"],
+            cells: [
+                ["δίδου", "δός"],
+                ["διδότω", "δότω"],
+                ["δίδοτε", "δότε"],
+                ["διδότωσαν", "δότωσαν"]
             ]
         }
     ],

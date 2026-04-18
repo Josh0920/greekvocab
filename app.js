@@ -2060,7 +2060,8 @@
             html += `<div class="dict-participles">`;
             for (const ptcpType in v.participles) {
                 const ptcpData = v.participles[ptcpType];
-                html += `<div class="dict-conj-block dict-conj-block--wide"><h4>${escapeHTML(ptcpType)} Participle</h4>`;
+                const ptcpEng = participleEnglish(v.meaning, ptcpType);
+                html += `<div class="dict-conj-block dict-conj-block--wide"><h4>${escapeHTML(ptcpType)} Participle — <em>${escapeHTML(ptcpEng)}</em></h4>`;
                 html += `<table class="dict-ptcp-table"><tr><th></th><th colspan="3">Singular</th><th colspan="3">Plural</th></tr>`;
                 html += `<tr><th></th><th>M.</th><th>F.</th><th>N.</th><th>M.</th><th>F.</th><th>N.</th></tr>`;
                 caseLabels.forEach(caseName => {

@@ -344,6 +344,16 @@ const CATEGORIES = {
             { term: "σωτηρία, -ας, ἡ", definition: "salvation; deliverance", notes: "" },
             { term: "φανερόω", definition: "I reveal, make known", notes: "ο-contract verb" },
             { term: "φόβος, -ου, ὁ", definition: "fear; reverence", notes: "" },
+            { term: "ἁμαρτάνω", definition: "I sin", notes: "verb" },
+            { term: "ἁμαρτωλός, -όν", definition: "adjective: sinful; noun: sinner", notes: "" },
+            { term: "ἀνίστημι", definition: "intransitive: I rise, get up; transitive: I raise", notes: "μι verb" },
+            { term: "ἀνοίγω", definition: "I open", notes: "verb" },
+            { term: "ἀφίημι", definition: "I let go, leave, permit; forgive", notes: "μι verb" },
+            { term: "δείκνυμι", definition: "I show, explain", notes: "μι verb" },
+            { term: "ἴδιος, -ία, -ον", definition: "one's own", notes: "" },
+            { term: "μέσος, -η, -ον", definition: "middle, in the midst", notes: "" },
+            { term: "τίθημι", definition: "I put, place", notes: "μι verb" },
+            { term: "φημί", definition: "I say, affirm", notes: "μι verb" },
         ]
     },
 

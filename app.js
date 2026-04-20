@@ -1920,6 +1920,8 @@
         for (const m of matches) {
             if (m.type === "noun") {
                 nounCoveredForms.add(norm(m.nounKey));
+                // Also add just the base lemma (before any comma) so "ἀγαθός, -ή, -όν" covers card term "ἀγαθός, -ή, -όν"
+                nounCoveredForms.add(norm(m.nounKey.split(',')[0]));
                 const n = m.noun;
                 if (n.forms) { for (const c in n.forms) { const [sg,pl] = n.forms[c]; nounCoveredForms.add(norm(sg)); nounCoveredForms.add(norm(pl)); } }
                 if (n.genderForms) { for (const c in n.genderForms) { n.genderForms[c].forEach(f => nounCoveredForms.add(norm(f))); } }
@@ -1932,10 +1934,14 @@
         const deduped = [];
         for (const m of matches) {
             const key = m.type === "card" ? norm(m.card.term) : m.type === "verb" ? norm(m.verbKey) : norm(m.nounKey);
-            // Suppress vocab/paradigm card if a richer lexicon entry covers this exact form
+            // Suppress vocab/paradigm card if a richer lexicon entry covers this exact form.
+            // Check both the full card term and just the base lemma (before the comma),
+            // so "ἀγαθός, -ή, -όν" is suppressed when noun-lexicon has "ἀγαθός, -ή, -όν".
             if (m.type === "card") {
                 const cardNorm = norm(m.card.term);
-                if (nounCoveredForms.has(cardNorm) || verbCoveredForms.has(cardNorm)) continue;
+                const cardBase = norm(m.card.term.split(',')[0].split('—')[0].split('/')[0]);
+                if (nounCoveredForms.has(cardNorm) || nounCoveredForms.has(cardBase) ||
+                    verbCoveredForms.has(cardNorm) || verbCoveredForms.has(cardBase)) continue;
             }
             const uniqueKey = key + "|" + (m.type === "card" ? m.catKey : m.type);
             if (!seen.has(uniqueKey)) {

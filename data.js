@@ -414,6 +414,33 @@ const CATEGORIES = {
         ]
     },
 
+    article: {
+        name: "Article Paradigm",
+        icon: "🔡",
+        cards: [
+            { term: "ὁ, ἡ, τό", definition: "the (definite article)", notes: "Article" },
+            { term: "ὁ", definition: "the — Nom. Sg. Masc.", notes: "Article" },
+            { term: "τοῦ", definition: "the — Gen. Sg. Masc./Neut.", notes: "Article" },
+            { term: "τῷ", definition: "the — Dat. Sg. Masc./Neut.", notes: "Article" },
+            { term: "τόν", definition: "the — Acc. Sg. Masc.", notes: "Article" },
+            { term: "ἡ", definition: "the — Nom. Sg. Fem.", notes: "Article" },
+            { term: "τῆς", definition: "the — Gen. Sg. Fem.", notes: "Article" },
+            { term: "τῇ", definition: "the — Dat. Sg. Fem.", notes: "Article" },
+            { term: "τήν", definition: "the — Acc. Sg. Fem.", notes: "Article" },
+            { term: "τό", definition: "the — Nom./Acc. Sg. Neut.", notes: "Article" },
+            { term: "τοῦ", definition: "the — Gen. Sg. Neut.", notes: "Article" },
+            { term: "τῷ", definition: "the — Dat. Sg. Neut.", notes: "Article" },
+            { term: "οἱ", definition: "the — Nom. Pl. Masc.", notes: "Article" },
+            { term: "τῶν", definition: "the — Gen. Pl. (all genders)", notes: "Article" },
+            { term: "τοῖς", definition: "the — Dat. Pl. Masc./Neut.", notes: "Article" },
+            { term: "τούς", definition: "the — Acc. Pl. Masc.", notes: "Article" },
+            { term: "αἱ", definition: "the — Nom. Pl. Fem.", notes: "Article" },
+            { term: "ταῖς", definition: "the — Dat. Pl. Fem.", notes: "Article" },
+            { term: "τάς", definition: "the — Acc. Pl. Fem.", notes: "Article" },
+            { term: "τά", definition: "the — Nom./Acc. Pl. Neut.", notes: "Article" },
+        ]
+    },
+
     adjectives: {
         name: "Adjectives",
         icon: "🔤",

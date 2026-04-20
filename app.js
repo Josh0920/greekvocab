@@ -27,7 +27,7 @@
     let paraMode = null; // "multiple-choice" or "fill-blank"
 
     const STORAGE_KEY = "koine-greek-data";
-    const PARADIGM_CATS = ["verbs", "nouns", "adjectives", "pronouns", "participles"];
+    const PARADIGM_CATS = ["verbs", "nouns", "adjectives", "article", "pronouns", "participles"];
 
     // Stored study options (read from checkboxes before view switch)
     let studyOpts = { shuffle: true, reverse: false, blankAll: false };
@@ -81,6 +81,7 @@
         bindResults();
         bindParadigm();
         bindDictionary();
+        bindTranslate();
     }
 
     // --- Data ---
@@ -363,24 +364,25 @@
 
                 if (tables.length === 0) return;
                 startParadigmQuizDirect(tables);
-            } else if ((currentCategory === "nouns" || currentCategory === "adjectives" || currentCategory === "pronouns") && typeof NOUN_LEXICON !== "undefined") {
-                // NOUN MODE: build tables from selected words, filtered by type
-                const checkedTypes = [...document.querySelectorAll("#noun-type-list input[type='checkbox']:checked")]
-                    .map(cb => cb.dataset.type);
-                const typeSet = new Set(checkedTypes);
+            } else if ((currentCategory === "nouns" || currentCategory === "adjectives" || currentCategory === "article" || currentCategory === "pronouns") && typeof NOUN_LEXICON !== "undefined") {
+                // NOUN MODE: build tables from selected words, or all words for this category
+                const catTypes = {
+                    nouns:      new Set(["1st Declension", "2nd Declension", "3rd Declension", "Other"]),
+                    adjectives: new Set(["Adjective"]),
+                    article:    new Set(["Article"]),
+                    pronouns:   new Set(["Article", "Pronoun"]),
+                };
+                const allowed = catTypes[currentCategory];
                 let tables = [];
 
                 if (selectedNouns.length > 0) {
-                    // Specific words selected: build their declension tables
                     selectedNouns.forEach(key => {
                         const t = buildNounTableForEntry(key);
                         if (t) tables.push(t);
                     });
                 } else {
-                    // No specific words: use all NOUN_LEXICON entries matching checked types
                     for (const key in NOUN_LEXICON) {
-                        const label = getNounTypeLabel(NOUN_LEXICON[key]);
-                        if (typeSet.has(label)) {
+                        if (allowed.has(getNounTypeLabel(NOUN_LEXICON[key]))) {
                             const t = buildNounTableForEntry(key);
                             if (t) tables.push(t);
                         }
@@ -425,13 +427,6 @@
         });
         document.getElementById("verb-search").addEventListener("input", () => {
             renderVerbPickerList();
-        });
-        // Noun type filter select/deselect all
-        document.getElementById("noun-type-select-all").addEventListener("click", () => {
-            document.querySelectorAll("#noun-type-list input[type='checkbox']").forEach(cb => cb.checked = true);
-        });
-        document.getElementById("noun-type-deselect-all").addEventListener("click", () => {
-            document.querySelectorAll("#noun-type-list input[type='checkbox']").forEach(cb => cb.checked = false);
         });
         // Noun picker
         document.getElementById("noun-add-all").addEventListener("click", () => {
@@ -508,33 +503,6 @@
         if (n.declension === "2nd") return "2nd Declension";
         if (n.declension === "3rd") return "3rd Declension";
         return "Other";
-    }
-
-    function collectNounTypes() {
-        const seen = new Set();
-        if (typeof NOUN_LEXICON !== "undefined") {
-            for (const key in NOUN_LEXICON) seen.add(getNounTypeLabel(NOUN_LEXICON[key]));
-        }
-        const allTypes = [
-            { name: "Article",         group: "Pronouns & Articles" },
-            { name: "Pronoun",         group: "Pronouns & Articles" },
-            { name: "Adjective",       group: "Adjectives" },
-            { name: "1st Declension",  group: "Nouns" },
-            { name: "2nd Declension",  group: "Nouns" },
-            { name: "3rd Declension",  group: "Nouns" },
-            { name: "Other",           group: "Nouns" },
-        ];
-        // Show only types relevant to the current category
-        const nounOnly      = new Set(["1st Declension", "2nd Declension", "3rd Declension", "Other"]);
-        const adjectiveOnly = new Set(["Adjective"]);
-        const pronounOnly   = new Set(["Article", "Pronoun"]);
-        return allTypes.filter(o => {
-            if (!seen.has(o.name)) return false;
-            if (currentCategory === "nouns")      return nounOnly.has(o.name);
-            if (currentCategory === "adjectives") return adjectiveOnly.has(o.name);
-            if (currentCategory === "pronouns")   return pronounOnly.has(o.name);
-            return true;
-        });
     }
 
     function buildNounTableForEntry(nounKey) {
@@ -795,7 +763,6 @@
         const verbSection = document.getElementById("verb-select-section");
         const tenseSection = document.getElementById("para-tense-section");
         const tableSection = document.getElementById("para-table-section");
-        const nounTypeSection = document.getElementById("noun-type-section");
         const nounSection = document.getElementById("noun-select-section");
 
         if (currentCategory === "verbs" && typeof VERB_LEXICON !== "undefined") {
@@ -833,48 +800,24 @@
                 `;
                 list.appendChild(label);
             });
-        } else if ((currentCategory === "nouns" || currentCategory === "adjectives" || currentCategory === "pronouns") && typeof NOUN_LEXICON !== "undefined") {
-            // NOUN MODE: show type filter panel + noun picker panel
-            layout.classList.add("two-col");
+        } else if ((currentCategory === "nouns" || currentCategory === "adjectives" || currentCategory === "article" || currentCategory === "pronouns") && typeof NOUN_LEXICON !== "undefined") {
+            // NOUN MODE: single-column noun picker
+            layout.classList.remove("two-col");
             verbSection.classList.add("hidden");
             tenseSection.classList.add("hidden");
             tableSection.classList.add("hidden");
-            nounTypeSection.classList.remove("hidden");
             nounSection.classList.remove("hidden");
 
             document.getElementById("noun-search").value = "";
             selectedNouns = [];
             renderNounTags();
             renderNounPickerList();
-
-            // Render noun type checkboxes with section headers
-            const nounTypes = collectNounTypes();
-            const list = document.getElementById("noun-type-list");
-            list.innerHTML = "";
-            let currentGroup = "";
-            nounTypes.forEach(({ name, group }) => {
-                if (group !== currentGroup) {
-                    currentGroup = group;
-                    const header = document.createElement("div");
-                    header.className = "para-section-header";
-                    header.textContent = group;
-                    list.appendChild(header);
-                }
-                const label = document.createElement("label");
-                label.className = "para-select-item";
-                label.innerHTML = `
-                    <input type="checkbox" checked data-type="${escapeAttr(name)}">
-                    <span class="para-item-title">${escapeHTML(name)}</span>
-                `;
-                list.appendChild(label);
-            });
         } else {
             // SIMPLE TABLE MODE (participles, etc.)
             layout.classList.remove("two-col");
             verbSection.classList.add("hidden");
             tenseSection.classList.add("hidden");
             tableSection.classList.remove("hidden");
-            nounTypeSection.classList.add("hidden");
             nounSection.classList.add("hidden");
 
             const tables = PARADIGM_TABLES[currentCategory];
@@ -2375,6 +2318,177 @@
     }
 
     // ============================================================
+    // ============================================================
+    // TRANSLATE
+    // ============================================================
+    const TRANSLATE_KEY_STORAGE = "koine-translate-api-key";
+    const TRANSLATE_DIR_STORAGE = "koine-translate-dir"; // "en-gr" or "gr-en"
+
+    // Greek Unicode ranges: Basic Greek + Greek Extended
+    function containsGreek(text) {
+        return /[\u0370-\u03FF\u1F00-\u1FFF]/.test(text);
+    }
+
+    // Direction state: "en-gr" (English→Greek) or "gr-en" (Greek→English)
+    let translateDir = localStorage.getItem(TRANSLATE_DIR_STORAGE) || "en-gr";
+
+    function translateFromLabel() { return translateDir === "en-gr" ? "English" : "Koine Greek"; }
+    function translateToLabel()   { return translateDir === "en-gr" ? "Koine Greek" : "English"; }
+
+    function updateTranslateLabels() {
+        document.getElementById("translate-from-label").textContent = translateFromLabel();
+        document.getElementById("translate-to-label").textContent   = translateToLabel();
+    }
+
+    function setTranslateStatus(msg, type) {
+        const el = document.getElementById("translate-status");
+        if (!msg) { el.classList.add("hidden"); return; }
+        el.className = "translate-status " + (type || "info");
+        el.innerHTML = msg;
+    }
+
+    function bindTranslate() {
+        const apiKeyInput = document.getElementById("translate-api-key");
+        const keyStatus   = document.getElementById("translate-key-status");
+
+        // Load saved key
+        const saved = localStorage.getItem(TRANSLATE_KEY_STORAGE) || "";
+        if (saved) apiKeyInput.value = saved;
+
+        // Restore direction labels
+        updateTranslateLabels();
+
+        // Auto-detect language as user types and update from-label
+        document.getElementById("translate-input").addEventListener("input", () => {
+            const text = document.getElementById("translate-input").value;
+            if (text.trim()) {
+                const isGreek = containsGreek(text);
+                translateDir = isGreek ? "gr-en" : "en-gr";
+                localStorage.setItem(TRANSLATE_DIR_STORAGE, translateDir);
+                updateTranslateLabels();
+            }
+        });
+
+        // Clear input
+        document.getElementById("translate-clear-btn").addEventListener("click", () => {
+            document.getElementById("translate-input").value = "";
+            document.getElementById("translate-output").innerHTML = '<span class="translate-placeholder">Translation will appear here</span>';
+            setTranslateStatus("", "");
+        });
+
+        // Copy output
+        document.getElementById("translate-copy-btn").addEventListener("click", () => {
+            const text = document.getElementById("translate-output").textContent.trim();
+            if (text && text !== "Translation will appear here") {
+                navigator.clipboard.writeText(text).then(() => {
+                    setTranslateStatus("Copied to clipboard!", "info");
+                    setTimeout(() => setTranslateStatus("", ""), 1800);
+                });
+            }
+        });
+
+        // Swap direction
+        document.getElementById("translate-swap-btn").addEventListener("click", () => {
+            const outText = document.getElementById("translate-output").textContent.trim();
+            const isPlaceholder = document.getElementById("translate-output").querySelector(".translate-placeholder");
+            // Flip direction
+            translateDir = translateDir === "en-gr" ? "gr-en" : "en-gr";
+            localStorage.setItem(TRANSLATE_DIR_STORAGE, translateDir);
+            updateTranslateLabels();
+            // Move output text to input if there's a real translation
+            if (outText && !isPlaceholder) {
+                document.getElementById("translate-input").value = outText;
+                document.getElementById("translate-output").innerHTML = '<span class="translate-placeholder">Translation will appear here</span>';
+            }
+        });
+
+        // Translate button
+        document.getElementById("translate-btn").addEventListener("click", doTranslate);
+        document.getElementById("translate-input").addEventListener("keydown", e => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) doTranslate();
+        });
+
+        // API key toggle visibility
+        document.getElementById("translate-key-toggle").addEventListener("click", () => {
+            const tog = document.getElementById("translate-key-toggle");
+            if (apiKeyInput.type === "password") {
+                apiKeyInput.type = "text";
+                tog.textContent = "Hide";
+            } else {
+                apiKeyInput.type = "password";
+                tog.textContent = "Show";
+            }
+        });
+
+        // Save API key
+        document.getElementById("translate-key-save").addEventListener("click", () => {
+            const key = apiKeyInput.value.trim();
+            if (!key) { keyStatus.textContent = "Enter a key first."; keyStatus.className = "translate-key-msg error"; return; }
+            localStorage.setItem(TRANSLATE_KEY_STORAGE, key);
+            keyStatus.textContent = "Key saved!";
+            keyStatus.className = "translate-key-msg";
+            setTimeout(() => { keyStatus.textContent = ""; }, 2000);
+        });
+    }
+
+    async function doTranslate() {
+        const input = document.getElementById("translate-input").value.trim();
+        if (!input) return;
+
+        const apiKey = localStorage.getItem(TRANSLATE_KEY_STORAGE) || "";
+        if (!apiKey) {
+            setTranslateStatus("⚠ No API key saved. Open <strong>⚙ API Settings</strong> below and save your Anthropic API key.", "error");
+            document.getElementById("translate-settings").open = true;
+            return;
+        }
+
+        const btn = document.getElementById("translate-btn");
+        btn.disabled = true;
+        btn.textContent = "Translating…";
+        setTranslateStatus('<span class="translate-loading">↻</span> Translating…', "info");
+        document.getElementById("translate-output").innerHTML = '<span class="translate-placeholder">Translating…</span>';
+
+        const isToGreek = translateDir === "en-gr";
+        const systemPrompt = isToGreek
+            ? "You are an expert Koine Greek translator. The user will give you English text. Translate it into Koine Greek using vocabulary, grammar, and idiom consistent with the Greek New Testament and Septuagint. Respond with ONLY the Greek translation — no transliteration, no explanation, no commentary."
+            : "You are an expert Koine Greek translator. The user will give you Koine Greek text. Translate it into clear, natural English. Respond with ONLY the English translation — no explanation, no commentary, no original Greek repeated back.";
+
+        try {
+            const resp = await fetch("https://api.anthropic.com/v1/messages", {
+                method: "POST",
+                headers: {
+                    "x-api-key": apiKey,
+                    "anthropic-version": "2023-06-01",
+                    "anthropic-dangerous-direct-browser-access": "true",
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    model: "claude-haiku-4-5",
+                    max_tokens: 1024,
+                    system: systemPrompt,
+                    messages: [{ role: "user", content: input }],
+                }),
+            });
+
+            if (!resp.ok) {
+                const err = await resp.json().catch(() => ({}));
+                const msg = err.error?.message || `API error ${resp.status}`;
+                throw new Error(msg);
+            }
+
+            const json = await resp.json();
+            const translation = json.content?.[0]?.text?.trim() || "";
+            document.getElementById("translate-output").textContent = translation;
+            setTranslateStatus("", "");
+        } catch (e) {
+            document.getElementById("translate-output").innerHTML = '<span class="translate-placeholder">Translation failed</span>';
+            setTranslateStatus("⚠ " + escapeHTML(e.message), "error");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Translate";
+        }
+    }
+
     // UTILITIES
     // ============================================================
     function shuffle(arr) {

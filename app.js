@@ -2447,7 +2447,11 @@
         for (const key in VERB_LEXICON) {
             const v = VERB_LEXICON[key];
             const meaningWords = tlNorm(v.meaning).split(/[\s,;/()\-]+/).filter(Boolean);
-            if (!meaningWords.some(w => w === baseNorm)) continue;
+            const baseIdx = meaningWords.findIndex(w => w === baseNorm);
+            // Require the base word to appear in the first 3 tokens of the meaning —
+            // this avoids matching verbs where the word only shows up in a secondary
+            // or parenthetical sense (e.g. ἀπόλλυμι: "I destroy, kill; (mid.) I perish, die").
+            if (baseIdx === -1 || baseIdx > 2) continue;
 
             if (personIdx !== null && v.indicative) {
                 for (const tk of (EN_TENSE_KEYS[tenseType] || [])) {
@@ -2480,13 +2484,22 @@
             if (!seen.has(base)) { seen.add(base); results.push({ lemma, meaning }); }
         };
 
+        // Only match if q appears within the first 3 tokens of the meaning.
+        // This prevents words like "with" matching entries where it only shows
+        // up in parenthetical grammar notes (e.g. "used with non-indicative moods").
+        const leadMatch = (meaning) => {
+            const mw = tlNorm(meaning).split(/[\s,;/()\-]+/).filter(Boolean);
+            const idx = mw.findIndex(w => w === q);
+            return idx !== -1 && idx <= 2;
+        };
+
         if (typeof VERB_LEXICON !== "undefined")
-            for (const key in VERB_LEXICON) if (tlNorm(VERB_LEXICON[key].meaning).split(/[\s,;/]+/).some(w => w === q)) add(key, VERB_LEXICON[key].meaning);
+            for (const key in VERB_LEXICON) if (leadMatch(VERB_LEXICON[key].meaning)) add(key, VERB_LEXICON[key].meaning);
         if (typeof NOUN_LEXICON !== "undefined")
-            for (const key in NOUN_LEXICON) if (tlNorm(NOUN_LEXICON[key].meaning).split(/[\s,;/]+/).some(w => w === q)) add(key, NOUN_LEXICON[key].meaning);
+            for (const key in NOUN_LEXICON) if (leadMatch(NOUN_LEXICON[key].meaning)) add(key, NOUN_LEXICON[key].meaning);
         for (const catKey in data)
             for (const card of (data[catKey].cards || []))
-                if (tlNorm(card.definition).split(/[\s,;/]+/).some(w => w === q)) add(card.term, card.definition);
+                if (leadMatch(card.definition)) add(card.term, card.definition);
 
         return results;
     }

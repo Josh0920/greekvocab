@@ -1296,6 +1296,7 @@ main {
 .lookup-word  { padding: 9px 14px; font-size: 1rem; font-weight: 500; white-space: nowrap; }
 .lookup-lemma { padding: 9px 14px; color: var(--text-2); white-space: nowrap; }
 .lookup-meaning { padding: 9px 14px; color: var(--text); }
+.lookup-english { padding: 9px 14px 9px 10px; color: var(--accent, #4f6ef7); font-style: italic; white-space: nowrap; border-left: 1px solid var(--border, #e5e7eb); }
 .lookup-not-found { color: var(--text-3); font-style: italic; }
 
 /* English translation strip (shown below word-by-word results) */

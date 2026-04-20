@@ -2653,45 +2653,30 @@
                     }
                 }
 
-                // Render unified table (verb rows have 4 cols; word rows span cols 1+4)
-                let html = '<table class="lookup-table"><thead><tr><th>Form</th><th>Lemma</th><th>Tense / Person</th><th>Meaning</th></tr></thead><tbody>';
+                // Render unified table — 5 cols: Form | Lemma | Tense/Person | Meaning | English
+                let html = '<table class="lookup-table"><thead><tr><th>Form</th><th>Lemma</th><th>Tense / Person</th><th>Meaning</th><th>English</th></tr></thead><tbody>';
                 for (const r of ordered) {
+                    const eng = r.type === "verb"
+                        ? verbEnglishForm(r)
+                        : r.meaning.replace(/\s*\([^)]*\)/g, "").split(/[,;]/)[0].trim();
                     if (r.type === "verb") {
                         html += `<tr>
                             <td class="lookup-word greek-text">${escapeHTML(r.form)}</td>
                             <td class="lookup-lemma greek-text">${escapeHTML(r.lemma)}</td>
                             <td class="lookup-meaning" style="color:var(--text-2);font-size:0.85rem">${escapeHTML(r.info)}</td>
                             <td class="lookup-meaning">${escapeHTML(r.meaning)}</td>
+                            <td class="lookup-english">${escapeHTML(eng)}</td>
                         </tr>`;
                     } else {
                         html += `<tr>
                             <td class="lookup-word greek-text">${escapeHTML(r.greek)}</td>
                             <td></td><td></td>
                             <td class="lookup-meaning">${escapeHTML(r.meaning)}</td>
+                            <td class="lookup-english">${escapeHTML(eng)}</td>
                         </tr>`;
                     }
                 }
                 html += "</tbody></table>";
-
-                // English translation strip — one natural English word per result, deduplicated
-                if (ordered.length > 0) {
-                    const engSeen  = new Set();
-                    const engWords = [];
-                    for (const r of ordered) {
-                        const eng = r.type === "verb"
-                            ? verbEnglishForm(r)
-                            : r.meaning.replace(/\s*\([^)]*\)/g, "").split(/[,;]/)[0].trim();
-                        if (!eng) continue;
-                        const key = eng.toLowerCase();
-                        if (!engSeen.has(key)) { engSeen.add(key); engWords.push(eng); }
-                    }
-                    if (engWords.length > 0) {
-                        html += `<div class="translate-english-strip">
-                            <span class="translate-english-label">English translation</span>
-                            <span class="translate-english-words">${engWords.map(escapeHTML).join(" &nbsp;·&nbsp; ")}</span>
-                        </div>`;
-                    }
-                }
                 out.innerHTML = html;
             } else {
                 // Fall back to word-by-word lookup with deduplication

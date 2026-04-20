@@ -328,6 +328,7 @@
     // PARADIGM TABLE QUIZ
     // ============================================================
     let selectedVerbs = [];
+    let selectedNouns = [];
 
     function bindParadigm() {
         document.getElementById("para-next-cell").addEventListener("click", nextParaBlank);
@@ -358,6 +359,32 @@
                         const mappedType = BASE_TYPE_MAP[bt.title];
                         if (mappedType && typeSet.has(mappedType)) tables.push(bt);
                     });
+                }
+
+                if (tables.length === 0) return;
+                startParadigmQuizDirect(tables);
+            } else if ((currentCategory === "nouns" || currentCategory === "pronouns") && typeof NOUN_LEXICON !== "undefined") {
+                // NOUN MODE: build tables from selected words, filtered by type
+                const checkedTypes = [...document.querySelectorAll("#noun-type-list input[type='checkbox']:checked")]
+                    .map(cb => cb.dataset.type);
+                const typeSet = new Set(checkedTypes);
+                let tables = [];
+
+                if (selectedNouns.length > 0) {
+                    // Specific words selected: build their declension tables
+                    selectedNouns.forEach(key => {
+                        const t = buildNounTableForEntry(key);
+                        if (t) tables.push(t);
+                    });
+                } else {
+                    // No specific words: use all NOUN_LEXICON entries matching checked types
+                    for (const key in NOUN_LEXICON) {
+                        const label = getNounTypeLabel(NOUN_LEXICON[key]);
+                        if (typeSet.has(label)) {
+                            const t = buildNounTableForEntry(key);
+                            if (t) tables.push(t);
+                        }
+                    }
                 }
 
                 if (tables.length === 0) return;
@@ -398,6 +425,28 @@
         });
         document.getElementById("verb-search").addEventListener("input", () => {
             renderVerbPickerList();
+        });
+        // Noun type filter select/deselect all
+        document.getElementById("noun-type-select-all").addEventListener("click", () => {
+            document.querySelectorAll("#noun-type-list input[type='checkbox']").forEach(cb => cb.checked = true);
+        });
+        document.getElementById("noun-type-deselect-all").addEventListener("click", () => {
+            document.querySelectorAll("#noun-type-list input[type='checkbox']").forEach(cb => cb.checked = false);
+        });
+        // Noun picker
+        document.getElementById("noun-add-all").addEventListener("click", () => {
+            if (typeof NOUN_LEXICON === "undefined") return;
+            selectedNouns = Object.keys(NOUN_LEXICON);
+            renderNounTags();
+            renderNounPickerList();
+        });
+        document.getElementById("noun-clear").addEventListener("click", () => {
+            selectedNouns = [];
+            renderNounTags();
+            renderNounPickerList();
+        });
+        document.getElementById("noun-search").addEventListener("input", () => {
+            renderNounPickerList();
         });
     }
 
@@ -443,6 +492,105 @@
                 selectedVerbs = selectedVerbs.filter(v => v !== btn.dataset.verb);
                 renderVerbTags();
                 renderVerbPickerList();
+            });
+        });
+    }
+
+    // ============================================================
+    // NOUN PARADIGM HELPERS
+    // ============================================================
+
+    function getNounTypeLabel(n) {
+        if (n.type === "article") return "Article";
+        if (n.type === "pronoun") return "Pronoun";
+        if (n.type === "adjective") return "Adjective";
+        if (n.declension === "1st") return "1st Declension";
+        if (n.declension === "2nd") return "2nd Declension";
+        if (n.declension === "3rd") return "3rd Declension";
+        return "Other";
+    }
+
+    function collectNounTypes() {
+        const seen = new Set();
+        if (typeof NOUN_LEXICON !== "undefined") {
+            for (const key in NOUN_LEXICON) seen.add(getNounTypeLabel(NOUN_LEXICON[key]));
+        }
+        const order = [
+            { name: "Article",         group: "Pronouns & Articles" },
+            { name: "Pronoun",         group: "Pronouns & Articles" },
+            { name: "Adjective",       group: "Adjectives" },
+            { name: "1st Declension",  group: "Nouns" },
+            { name: "2nd Declension",  group: "Nouns" },
+            { name: "3rd Declension",  group: "Nouns" },
+            { name: "Other",           group: "Nouns" },
+        ];
+        return order.filter(o => seen.has(o.name));
+    }
+
+    function buildNounTableForEntry(nounKey) {
+        if (typeof NOUN_LEXICON === "undefined") return null;
+        const n = NOUN_LEXICON[nounKey];
+        if (!n) return null;
+        const title = `${nounKey} — ${n.meaning}`;
+
+        if (n.genderForms) {
+            const cases = Object.keys(n.genderForms);
+            const cols = ["M.Sg", "F.Sg", "N.Sg", "M.Pl", "F.Pl", "N.Pl"];
+            const cells = cases.map(c => n.genderForms[c]);
+            return { title, cols, rows: cases, cells };
+        } else if (n.forms) {
+            const cases = Object.keys(n.forms);
+            const cols = ["Singular", "Plural"];
+            const cells = cases.map(c => n.forms[c]);
+            return { title, cols, rows: cases, cells };
+        }
+        return null;
+    }
+
+    function renderNounPickerList() {
+        if (typeof NOUN_LEXICON === "undefined") return;
+        const list = document.getElementById("noun-picker-list");
+        if (!list) return;
+        const query = (document.getElementById("noun-search").value || "")
+            .toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        list.innerHTML = "";
+        const sortedKeys = Object.keys(NOUN_LEXICON).sort((a, b) =>
+            a.normalize("NFD").replace(/[\u0300-\u036f]/g, "").localeCompare(
+                b.normalize("NFD").replace(/[\u0300-\u036f]/g, ""), "el"
+            )
+        );
+        for (const key of sortedKeys) {
+            const n = NOUN_LEXICON[key];
+            const searchable = (key + " " + n.meaning).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (query && !searchable.includes(query)) continue;
+            const isSelected = selectedNouns.includes(key);
+            const div = document.createElement("div");
+            div.className = "verb-picker-item" + (isSelected ? " selected" : "");
+            div.innerHTML = `<span class="vp-lexical">${escapeHTML(key)}</span><span class="vp-meaning">${escapeHTML(n.meaning)}</span>`;
+            div.addEventListener("click", () => {
+                if (selectedNouns.includes(key)) {
+                    selectedNouns = selectedNouns.filter(k => k !== key);
+                } else {
+                    selectedNouns.push(key);
+                }
+                renderNounTags();
+                renderNounPickerList();
+            });
+            list.appendChild(div);
+        }
+    }
+
+    function renderNounTags() {
+        const wrap = document.getElementById("noun-selected-tags");
+        if (!wrap) return;
+        wrap.innerHTML = selectedNouns.map(k => {
+            return `<span class="verb-tag">${escapeHTML(k)} <button data-noun="${escapeAttr(k)}">&times;</button></span>`;
+        }).join("");
+        wrap.querySelectorAll("button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                selectedNouns = selectedNouns.filter(k => k !== btn.dataset.noun);
+                renderNounTags();
+                renderNounPickerList();
             });
         });
     }
@@ -637,6 +785,8 @@
         const verbSection = document.getElementById("verb-select-section");
         const tenseSection = document.getElementById("para-tense-section");
         const tableSection = document.getElementById("para-table-section");
+        const nounTypeSection = document.getElementById("noun-type-section");
+        const nounSection = document.getElementById("noun-select-section");
 
         if (currentCategory === "verbs" && typeof VERB_LEXICON !== "undefined") {
             // VERB MODE: show tense types panel + verb picker panel
@@ -644,6 +794,8 @@
             verbSection.classList.remove("hidden");
             tenseSection.classList.remove("hidden");
             tableSection.classList.add("hidden");
+            nounTypeSection.classList.add("hidden");
+            nounSection.classList.add("hidden");
 
             document.getElementById("verb-search").value = "";
             selectedVerbs = [];
@@ -671,12 +823,49 @@
                 `;
                 list.appendChild(label);
             });
+        } else if ((currentCategory === "nouns" || currentCategory === "pronouns") && typeof NOUN_LEXICON !== "undefined") {
+            // NOUN MODE: show type filter panel + noun picker panel
+            layout.classList.add("two-col");
+            verbSection.classList.add("hidden");
+            tenseSection.classList.add("hidden");
+            tableSection.classList.add("hidden");
+            nounTypeSection.classList.remove("hidden");
+            nounSection.classList.remove("hidden");
+
+            document.getElementById("noun-search").value = "";
+            selectedNouns = [];
+            renderNounTags();
+            renderNounPickerList();
+
+            // Render noun type checkboxes with section headers
+            const nounTypes = collectNounTypes();
+            const list = document.getElementById("noun-type-list");
+            list.innerHTML = "";
+            let currentGroup = "";
+            nounTypes.forEach(({ name, group }) => {
+                if (group !== currentGroup) {
+                    currentGroup = group;
+                    const header = document.createElement("div");
+                    header.className = "para-section-header";
+                    header.textContent = group;
+                    list.appendChild(header);
+                }
+                const label = document.createElement("label");
+                label.className = "para-select-item";
+                label.innerHTML = `
+                    <input type="checkbox" checked data-type="${escapeAttr(name)}">
+                    <span class="para-item-title">${escapeHTML(name)}</span>
+                `;
+                list.appendChild(label);
+            });
         } else {
-            // NON-VERB MODE: show simple table list
+            // SIMPLE TABLE MODE (participles, etc.)
             layout.classList.remove("two-col");
             verbSection.classList.add("hidden");
             tenseSection.classList.add("hidden");
             tableSection.classList.remove("hidden");
+            nounTypeSection.classList.add("hidden");
+            nounSection.classList.add("hidden");
 
             const tables = PARADIGM_TABLES[currentCategory];
             window._paraSelectTables = [...tables];

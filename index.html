@@ -183,6 +183,31 @@
                         <div id="verb-picker-list" class="verb-picker-list"></div>
                         <div id="verb-selected-tags" class="verb-tags"></div>
                     </div>
+                    <!-- Noun declension type panel (noun/pronoun categories) -->
+                    <div id="noun-type-section" class="para-panel hidden">
+                        <div class="para-panel-header">
+                            <h3>Type</h3>
+                            <div class="para-panel-actions">
+                                <button id="noun-type-select-all" class="btn btn-outline btn-sm">All</button>
+                                <button id="noun-type-deselect-all" class="btn btn-outline btn-sm">None</button>
+                            </div>
+                        </div>
+                        <div id="noun-type-list" class="para-select-list"></div>
+                    </div>
+                    <!-- Noun picker panel (noun/pronoun categories) -->
+                    <div id="noun-select-section" class="para-panel verb-select-section hidden">
+                        <div class="para-panel-header">
+                            <h3>Specific Words</h3>
+                            <div class="para-panel-actions">
+                                <button id="noun-add-all" class="btn btn-outline btn-sm">All</button>
+                                <button id="noun-clear" class="btn btn-outline btn-sm">Clear</button>
+                            </div>
+                        </div>
+                        <p class="hint">Select words to practice their declensions</p>
+                        <input type="text" id="noun-search" class="verb-search" placeholder="Search nouns..." autocomplete="off">
+                        <div id="noun-picker-list" class="verb-picker-list"></div>
+                        <div id="noun-selected-tags" class="verb-tags"></div>
+                    </div>
                     <!-- Simple table list (non-verb categories) -->
                     <div id="para-table-section" class="para-panel">
                         <div class="para-panel-header">
@@ -338,8 +363,8 @@
     </div>
 
     <script src="data.js?v=9"></script>
-    <script src="verb-lexicon.js?v=9"></script>
-    <script src="noun-lexicon.js?v=3"></script>
-    <script src="app.js?v=19"></script>
+    <script src="verb-lexicon.js?v=10"></script>
+    <script src="noun-lexicon.js?v=4"></script>
+    <script src="app.js?v=20"></script>
 </body>
 </html>

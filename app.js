@@ -2409,6 +2409,12 @@
         "returned":"return","showed":"show","appeared":"appear",
     };
 
+    // Inverted map: base → canonical past form (for English translation generation)
+    const EN_BASE_TO_PAST = {};
+    for (const [past, base] of Object.entries(EN_IRREG)) {
+        if (!EN_BASE_TO_PAST[base]) EN_BASE_TO_PAST[base] = past;
+    }
+
     function stemEnglishVerb(verb) {
         if (EN_IRREG[verb]) return { base: EN_IRREG[verb], isPast: true };
         if (verb.endsWith("ied"))  return { base: verb.slice(0,-3)+"y", isPast: true };
@@ -2417,6 +2423,49 @@
         if (verb.endsWith("es") && verb.length > 3) return { base: verb.slice(0,-2), isPast: false };
         if (verb.endsWith("s")  && verb.length > 3) return { base: verb.slice(0,-1), isPast: false };
         return { base: verb, isPast: false };
+    }
+
+    // Given a base English verb, return a simple past-tense form
+    function toEnglishPast(base) {
+        if (EN_BASE_TO_PAST[base]) return EN_BASE_TO_PAST[base];
+        if (base.endsWith("e")) return base + "d";
+        if (base.endsWith("y") && base.length > 1 && !"aeiou".includes(base[base.length - 2]))
+            return base.slice(0, -1) + "ied";
+        return base + "ed";
+    }
+
+    // Given a phraseHit result object (with .form, .lemma, .meaning, .info),
+    // produce a natural English gloss like "you died" or "he/she/it is".
+    function verbEnglishForm(r) {
+        const m = r.info.match(/(1st|2nd|3rd)\s+(Sg|Pl)\./i);
+        if (!m) return r.meaning.replace(/^I\s+/i, "").split(/[,;]/)[0].trim();
+        const persKey = m[1].toLowerCase();               // "1st" / "2nd" / "3rd"
+        const numKey  = m[2].toLowerCase();               // "sg" / "pl"
+        const ti      = r.info.toLowerCase();
+        const isPast  = ti.includes("aorist") || ti.includes("imperfect");
+        const isFut   = ti.includes("future");
+        const base    = r.meaning.replace(/^I\s+/i, "").split(/[,;]/)[0].trim().toLowerCase();
+        const pronMap = {
+            "1st sg":"I", "2nd sg":"you", "3rd sg":"he/she/it",
+            "1st pl":"we", "2nd pl":"you (pl.)", "3rd pl":"they",
+        };
+        const pronoun = pronMap[`${persKey} ${numKey}`] || "";
+        // εἰμί has completely irregular English forms
+        if (r.lemma === "εἰμί") {
+            const pres = { "I":"am","you":"are","he/she/it":"is","we":"are","you (pl.)":"are","they":"are" };
+            const past = { "I":"was","you":"were","he/she/it":"was","we":"were","you (pl.)":"were","they":"were" };
+            return `${pronoun} ${(isPast ? past : pres)[pronoun] || "is"}`;
+        }
+        if (isFut)  return `${pronoun} will ${base}`;
+        if (isPast) return `${pronoun} ${toEnglishPast(base)}`;
+        // Present: add -s/-es for 3rd sg
+        if (persKey === "3rd" && numKey === "sg") {
+            if (/(?:s|x|z|sh|ch)$/.test(base)) return `${pronoun} ${base}es`;
+            if (base.endsWith("y") && !"aeiou".includes(base[base.length - 2]))
+                return `${pronoun} ${base.slice(0, -1)}ies`;
+            return `${pronoun} ${base}s`;
+        }
+        return `${pronoun} ${base}`;
     }
 
     const EN_TENSE_KEYS = {
@@ -2584,41 +2633,64 @@
             const { results: phraseHits, usedVerbToken } = lookupEnglishPhrase(tokens);
 
             if (phraseHits.length > 0 && phraseHits[0].form) {
-                // Specific conjugated forms found — show verb table
-                let html = '<table class="lookup-table"><thead><tr><th>Form</th><th>Lemma</th><th>Tense / Person</th><th>Meaning</th></tr></thead><tbody>';
-                phraseHits.forEach(r => {
-                    html += `<tr>
-                        <td class="lookup-word greek-text">${escapeHTML(r.form)}</td>
-                        <td class="lookup-lemma greek-text">${escapeHTML(r.lemma)}</td>
-                        <td class="lookup-meaning" style="color:var(--text-2);font-size:0.85rem">${escapeHTML(r.info)}</td>
-                        <td class="lookup-meaning">${escapeHTML(r.meaning)}</td>
-                    </tr>`;
-                });
-                html += "</tbody></table>";
+                // Build results in the order the words appear in the sentence
+                const seen    = new Set(phraseHits.map(r => tlBase(r.lemma)));
+                const ordered = []; // { type:"verb"|"word", ... }
 
-                // Also look up remaining words (nouns, names, prepositions, etc.)
-                const verbBases = new Set(phraseHits.map(r => tlBase(r.lemma)));
-                const extraSeen = new Set([...verbBases]);
-                const extras = [];
-                const addExtra = (lemma, meaning) => {
-                    const base = tlBase(lemma);
-                    if (!extraSeen.has(base)) { extraSeen.add(base); extras.push({ lemma, meaning }); }
-                };
                 for (const raw of words) {
                     const tok = tlStrip(raw).toLowerCase();
-                    if (EN_PERSON[tok] !== undefined) continue;   // skip subject pronouns (you, I, he…)
-                    if (usedVerbToken && tok === usedVerbToken) continue; // skip the main verb token
-                    lookupEnglishWord(raw).forEach(h => addExtra(h.lemma, h.meaning));
+                    if (EN_PERSON[tok] !== undefined) continue; // pronouns are implicit in the verb person
+
+                    if (usedVerbToken && tok === usedVerbToken) {
+                        // Insert verb form(s) at this position in sentence order
+                        phraseHits.forEach(r => ordered.push({ type: "verb", ...r }));
+                    } else {
+                        // Content word — look up and insert (first unique match per lemma)
+                        for (const h of lookupEnglishWord(raw)) {
+                            const base = tlBase(h.lemma);
+                            if (!seen.has(base)) { seen.add(base); ordered.push({ type: "word", greek: h.lemma, meaning: h.meaning }); }
+                        }
+                    }
                 }
-                if (extras.length > 0) {
-                    html += '<table class="lookup-table" style="margin-top:6px"><tbody>';
-                    extras.forEach(r => {
+
+                // Render unified table (verb rows have 4 cols; word rows span cols 1+4)
+                let html = '<table class="lookup-table"><thead><tr><th>Form</th><th>Lemma</th><th>Tense / Person</th><th>Meaning</th></tr></thead><tbody>';
+                for (const r of ordered) {
+                    if (r.type === "verb") {
                         html += `<tr>
-                            <td class="lookup-word greek-text">${escapeHTML(r.lemma)}</td>
+                            <td class="lookup-word greek-text">${escapeHTML(r.form)}</td>
+                            <td class="lookup-lemma greek-text">${escapeHTML(r.lemma)}</td>
+                            <td class="lookup-meaning" style="color:var(--text-2);font-size:0.85rem">${escapeHTML(r.info)}</td>
                             <td class="lookup-meaning">${escapeHTML(r.meaning)}</td>
                         </tr>`;
-                    });
-                    html += "</tbody></table>";
+                    } else {
+                        html += `<tr>
+                            <td class="lookup-word greek-text">${escapeHTML(r.greek)}</td>
+                            <td></td><td></td>
+                            <td class="lookup-meaning">${escapeHTML(r.meaning)}</td>
+                        </tr>`;
+                    }
+                }
+                html += "</tbody></table>";
+
+                // English translation strip — one natural English word per result, deduplicated
+                if (ordered.length > 0) {
+                    const engSeen  = new Set();
+                    const engWords = [];
+                    for (const r of ordered) {
+                        const eng = r.type === "verb"
+                            ? verbEnglishForm(r)
+                            : r.meaning.replace(/\s*\([^)]*\)/g, "").split(/[,;]/)[0].trim();
+                        if (!eng) continue;
+                        const key = eng.toLowerCase();
+                        if (!engSeen.has(key)) { engSeen.add(key); engWords.push(eng); }
+                    }
+                    if (engWords.length > 0) {
+                        html += `<div class="translate-english-strip">
+                            <span class="translate-english-label">English translation</span>
+                            <span class="translate-english-words">${engWords.map(escapeHTML).join(" &nbsp;·&nbsp; ")}</span>
+                        </div>`;
+                    }
                 }
                 out.innerHTML = html;
             } else {

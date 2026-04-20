@@ -2434,6 +2434,32 @@
         const hasFuture  = tokens.includes("will");
         const hasPerfect = tokens.some(t => t === "have" || t === "has");
 
+        // ---- Special case: εἰμί (to be) ----
+        // "am/is/are/was/were" are all stop words so the normal verb search never finds them.
+        // Detect them first and return the correct εἰμί form immediately.
+        const EIMI_FORMS = {
+            "am":   { tenseKey: "Present Active Indicative",   defaultPerson: 0 }, // always 1st sg
+            "is":   { tenseKey: "Present Active Indicative",   defaultPerson: 2 }, // always 3rd sg
+            "are":  { tenseKey: "Present Active Indicative",   defaultPerson: 5 }, // 3rd pl unless pronoun
+            "was":  { tenseKey: "Imperfect Active Indicative", defaultPerson: 2 }, // 3rd sg unless pronoun
+            "were": { tenseKey: "Imperfect Active Indicative", defaultPerson: 5 }, // 3rd pl unless pronoun
+        };
+        const eimiTok = tokens.find(t => EIMI_FORMS[t]);
+        if (eimiTok && typeof VERB_LEXICON !== "undefined" && VERB_LEXICON["εἰμί"]) {
+            const { tenseKey, defaultPerson } = EIMI_FORMS[eimiTok];
+            const person = (personIdx !== null) ? personIdx : defaultPerson;
+            const v = VERB_LEXICON["εἰμί"];
+            if (v.indicative && v.indicative[tenseKey]) {
+                const forms = v.indicative[tenseKey];
+                if (forms[person] && forms[person] !== "--") {
+                    const persLabel = ["1st","2nd","3rd"][person % 3];
+                    const numLabel  = person < 3 ? "Sg." : "Pl.";
+                    return { results: [{ form: forms[person], lemma: "εἰμί", meaning: v.meaning, info: `${tenseKey} — ${persLabel} ${numLabel}` }], usedVerbToken: eimiTok };
+                }
+            }
+        }
+
+        // ---- Regular verb phrase lookup ----
         // Find main verb token (skip pronouns, stop words, auxiliaries)
         const skip = new Set([...EN_STOP_WORDS, ...Object.keys(EN_PERSON), "will","have","has","had","not","never"]);
         const mainTok = tokens.find(t => !skip.has(t) && t.length > 1);

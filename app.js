@@ -2545,7 +2545,7 @@
             const phraseHits = lookupEnglishPhrase(tokens);
 
             if (phraseHits.length > 0 && phraseHits[0].form) {
-                // Specific conjugated forms found
+                // Specific conjugated forms found — show verb table
                 let html = '<table class="lookup-table"><thead><tr><th>Form</th><th>Lemma</th><th>Tense / Person</th><th>Meaning</th></tr></thead><tbody>';
                 phraseHits.forEach(r => {
                     html += `<tr>
@@ -2556,6 +2556,28 @@
                     </tr>`;
                 });
                 html += "</tbody></table>";
+
+                // Also look up remaining words (nouns, names, prepositions, etc.)
+                const verbBases = new Set(phraseHits.map(r => tlBase(r.lemma)));
+                const extraSeen = new Set([...verbBases]);
+                const extras = [];
+                const addExtra = (lemma, meaning) => {
+                    const base = tlBase(lemma);
+                    if (!extraSeen.has(base)) { extraSeen.add(base); extras.push({ lemma, meaning }); }
+                };
+                for (const raw of words) {
+                    lookupEnglishWord(raw).forEach(h => addExtra(h.lemma, h.meaning));
+                }
+                if (extras.length > 0) {
+                    html += '<table class="lookup-table" style="margin-top:6px"><tbody>';
+                    extras.forEach(r => {
+                        html += `<tr>
+                            <td class="lookup-word greek-text">${escapeHTML(r.lemma)}</td>
+                            <td class="lookup-meaning">${escapeHTML(r.meaning)}</td>
+                        </tr>`;
+                    });
+                    html += "</tbody></table>";
+                }
                 out.innerHTML = html;
             } else {
                 // Fall back to word-by-word lookup with deduplication

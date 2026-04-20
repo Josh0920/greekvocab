@@ -2325,80 +2325,53 @@
     function containsGreek(text) {
         return /[\u0370-\u03FF\u1F00-\u1FFF]/.test(text);
     }
-
-    // Normalize: strip accents + diacritics, lowercase
     function tlNorm(s) {
         return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
     }
-
-    // Strip punctuation (Greek middle dot, comma, period, etc.)
     function tlStrip(w) {
         return w.replace(/[.,;:·!?'"()[\]{}\u00B7\u037E\u0387—–]/g, "").trim();
     }
+    // Normalized base of a lemma (before comma/space) — used for deduplication
+    function tlBase(lemma) {
+        return tlNorm(lemma.split(",")[0].split(" ")[0]);
+    }
 
-    // Look up a single Greek word across all lexicons
+    // ---- Greek word lookup ----
     function lookupGreekWord(raw) {
         const word = tlStrip(raw);
         if (!word) return null;
         const q = tlNorm(word);
 
-        // 1. NOUN_LEXICON — lexical form (base before comma)
         if (typeof NOUN_LEXICON !== "undefined") {
+            for (const key in NOUN_LEXICON)
+                if (tlNorm(key.split(",")[0]) === q) return { lemma: key, meaning: NOUN_LEXICON[key].meaning };
             for (const key in NOUN_LEXICON) {
-                if (tlNorm(key.split(",")[0]) === q) {
-                    const n = NOUN_LEXICON[key];
-                    return { lemma: key, meaning: n.meaning };
-                }
-            }
-            // 2. NOUN_LEXICON — declined forms
-            for (const key in NOUN_LEXICON) {
-                const n = NOUN_LEXICON[key];
-                const src = n.forms || n.genderForms;
-                if (src) {
-                    for (const c in src) {
-                        if (src[c].some(f => tlNorm(f) === q)) {
-                            return { lemma: key, meaning: n.meaning };
-                        }
-                    }
-                }
+                const src = NOUN_LEXICON[key].forms || NOUN_LEXICON[key].genderForms;
+                if (src) for (const c in src) if (src[c].some(f => tlNorm(f) === q)) return { lemma: key, meaning: NOUN_LEXICON[key].meaning };
             }
         }
-
-        // 3. VERB_LEXICON — lexical form
         if (typeof VERB_LEXICON !== "undefined") {
-            for (const key in VERB_LEXICON) {
-                if (tlNorm(key) === q) {
-                    return { lemma: key, meaning: VERB_LEXICON[key].meaning };
-                }
-            }
-            // 4. VERB_LEXICON — conjugated/inflected forms
+            for (const key in VERB_LEXICON)
+                if (tlNorm(key) === q) return { lemma: key, meaning: VERB_LEXICON[key].meaning };
             for (const key in VERB_LEXICON) {
                 const v = VERB_LEXICON[key];
                 let hit = false;
-                const scanArr = obj => { if (!obj || hit) return; for (const t in obj) if (Array.isArray(obj[t]) && obj[t].some(f => tlNorm(f) === q)) hit = true; };
-                scanArr(v.indicative);
-                scanArr(v.subjunctive);
-                scanArr(v.imperative);
+                const scan = obj => { if (!obj || hit) return; for (const t in obj) if (Array.isArray(obj[t]) && obj[t].some(f => tlNorm(f) === q)) hit = true; };
+                scan(v.indicative); scan(v.subjunctive); scan(v.imperative);
                 if (!hit && v.infinitives) for (const t in v.infinitives) if (tlNorm(v.infinitives[t]) === q) hit = true;
                 if (!hit && v.participles) for (const pt in v.participles) for (const c in v.participles[pt]) if (v.participles[pt][c].some(f => tlNorm(f) === q)) hit = true;
                 if (hit) return { lemma: key, meaning: v.meaning };
             }
         }
-
-        // 5. Vocabulary cards — base term match
-        for (const catKey in data) {
+        for (const catKey in data)
             for (const card of (data[catKey].cards || [])) {
                 const base = tlNorm(card.term.split(",")[0].split("/")[0].split("—")[0]);
-                if (base === q || tlNorm(card.term) === q) {
-                    return { lemma: card.term, meaning: card.definition };
-                }
+                if (base === q || tlNorm(card.term) === q) return { lemma: card.term, meaning: card.definition };
             }
-        }
-
         return null;
     }
 
-    // Words too generic to be useful English search terms (appear in almost every definition)
+    // ---- English stop words ----
     const EN_STOP_WORDS = new Set([
         "i","am","is","are","be","been","being","was","were",
         "a","an","the","to","of","in","on","at","by","for",
@@ -2410,17 +2383,101 @@
         "this","that","which","who","what","how","when","where",
     ]);
 
-    // Look up a single English word — return matching Greek entries
+    // ---- English phrase lookup (person + tense aware) ----
+
+    // Subject pronouns → indicative form index [1sg=0, 2sg=1, 3sg=2, 1pl=3, 2pl=4, 3pl=5]
+    const EN_PERSON = { "i":0, "you":1, "he":2, "she":2, "it":2, "we":3, "they":5 };
+
+    // Irregular English past → base infinitive
+    const EN_IRREG = {
+        "went":"go","came":"come","saw":"see","knew":"know","said":"say",
+        "told":"tell","spoke":"speak","heard":"hear","found":"find","got":"get",
+        "gave":"give","took":"take","sent":"send","brought":"bring","led":"lead",
+        "kept":"keep","held":"hold","lost":"lose","made":"make","set":"set",
+        "let":"let","was":"be","were":"be","had":"have","did":"do",
+        "rose":"rise","fell":"fall","bore":"bear","stood":"stand","sat":"sit",
+        "lay":"lie","ran":"run","sang":"sing","wept":"weep","met":"meet",
+        "left":"leave","became":"become","began":"begin","ate":"eat",
+        "felt":"feel","fought":"fight","sought":"seek","sold":"sell",
+        "taught":"teach","wrote":"write","forgave":"forgive","arose":"arise",
+        "died":"die","loved":"love","believed":"believe","opened":"open",
+        "healed":"heal","prayed":"pray","sinned":"sin","raised":"raise",
+        "saved":"save","received":"receive","revealed":"reveal",
+        "crucified":"crucify","glorified":"glorify","sanctified":"sanctify",
+        "justified":"justify","testified":"testify","proclaimed":"proclaim",
+        "baptized":"baptize","blessed":"bless","entered":"enter",
+        "returned":"return","showed":"show","appeared":"appear",
+    };
+
+    function stemEnglishVerb(verb) {
+        if (EN_IRREG[verb]) return { base: EN_IRREG[verb], isPast: true };
+        if (verb.endsWith("ied"))  return { base: verb.slice(0,-3)+"y", isPast: true };
+        if (verb.endsWith("ed"))   return { base: verb.slice(0,-1),     isPast: true };  // loved→love, died→die
+        if (verb.endsWith("ies"))  return { base: verb.slice(0,-3)+"y", isPast: false };
+        if (verb.endsWith("es") && verb.length > 3) return { base: verb.slice(0,-2), isPast: false };
+        if (verb.endsWith("s")  && verb.length > 3) return { base: verb.slice(0,-1), isPast: false };
+        return { base: verb, isPast: false };
+    }
+
+    const EN_TENSE_KEYS = {
+        present: ["Present Active Indicative","Present Middle/Passive Indicative"],
+        aorist:  ["1st Aorist Active Indicative","2nd Aorist Active Indicative","1st Aorist Passive Indicative"],
+        future:  ["Future Active Indicative","Future Middle Indicative","Future Passive Indicative"],
+        perfect: ["Perfect Active Indicative","Perfect Middle/Passive Indicative"],
+    };
+
+    function lookupEnglishPhrase(tokens) {
+        // Detect person
+        let personIdx = null;
+        for (const t of tokens) if (EN_PERSON[t] !== undefined) { personIdx = EN_PERSON[t]; break; }
+
+        const hasFuture  = tokens.includes("will");
+        const hasPerfect = tokens.some(t => t === "have" || t === "has");
+
+        // Find main verb token (skip pronouns, stop words, auxiliaries)
+        const skip = new Set([...EN_STOP_WORDS, ...Object.keys(EN_PERSON), "will","have","has","had","not","never"]);
+        const mainTok = tokens.find(t => !skip.has(t) && t.length > 1);
+        if (!mainTok || typeof VERB_LEXICON === "undefined") return [];
+
+        const { base, isPast } = stemEnglishVerb(mainTok);
+        const tenseType = hasFuture ? "future" : hasPerfect ? "perfect" : isPast ? "aorist" : "present";
+        const baseNorm  = tlNorm(base);
+
+        const results = [];
+        for (const key in VERB_LEXICON) {
+            const v = VERB_LEXICON[key];
+            const meaningWords = tlNorm(v.meaning).split(/[\s,;/()\-]+/).filter(Boolean);
+            if (!meaningWords.some(w => w === baseNorm)) continue;
+
+            if (personIdx !== null && v.indicative) {
+                for (const tk of (EN_TENSE_KEYS[tenseType] || [])) {
+                    const forms = v.indicative[tk];
+                    if (forms && forms[personIdx] && forms[personIdx] !== "--") {
+                        const persLabel = ["1st","2nd","3rd"][personIdx % 3];
+                        const numLabel  = personIdx < 3 ? "Sg." : "Pl.";
+                        results.push({ form: forms[personIdx], lemma: key, meaning: v.meaning, info: `${tk} — ${persLabel} ${numLabel}` });
+                        break;
+                    }
+                }
+            } else {
+                results.push({ lemma: key, meaning: v.meaning });
+            }
+        }
+        return results;
+    }
+
+    // ---- English word lookup (single word, no phrase awareness) ----
     function lookupEnglishWord(raw) {
         const word = tlStrip(raw);
         if (!word || word.length < 2) return [];
         const q = tlNorm(word);
-        if (EN_STOP_WORDS.has(q)) return [];   // skip generic words
+        if (EN_STOP_WORDS.has(q)) return [];
         const results = [];
-        const seen = new Set();
+        const seen = new Set(); // dedup by normalized base lemma
 
         const add = (lemma, meaning) => {
-            if (!seen.has(lemma)) { seen.add(lemma); results.push({ lemma, meaning }); }
+            const base = tlBase(lemma);
+            if (!seen.has(base)) { seen.add(base); results.push({ lemma, meaning }); }
         };
 
         if (typeof VERB_LEXICON !== "undefined")
@@ -2434,14 +2491,16 @@
         return results;
     }
 
+    // ---- Bind & run ----
     function bindTranslate() {
         document.getElementById("translate-clear-btn").addEventListener("click", () => {
             document.getElementById("translate-input").value = "";
             document.getElementById("translate-output").innerHTML = '<span class="translate-placeholder">Results will appear here</span>';
         });
         document.getElementById("translate-btn").addEventListener("click", doLookup);
+        // Enter = look up; Shift+Enter = new line
         document.getElementById("translate-input").addEventListener("keydown", e => {
-            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) doLookup();
+            if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); doLookup(); }
         });
     }
 
@@ -2454,7 +2513,7 @@
         const words   = input.split(/\s+/).filter(Boolean);
 
         if (isGreek) {
-            // Word-by-word Greek → English table
+            // Greek → word-by-word table
             let found = 0;
             let html = '<table class="lookup-table"><thead><tr><th>Word</th><th>Lemma</th><th>Meaning</th></tr></thead><tbody>';
             for (const raw of words) {
@@ -2481,25 +2540,50 @@
             out.innerHTML = html;
 
         } else {
-            // English → Greek: search each word and collect matching entries
-            const allMatches = new Map(); // lemma → meaning
-            for (const raw of words) {
-                const hits = lookupEnglishWord(raw);
-                hits.forEach(h => allMatches.set(h.lemma, h.meaning));
+            // English → try phrase-aware lookup first
+            const tokens = words.map(w => tlStrip(w).toLowerCase());
+            const phraseHits = lookupEnglishPhrase(tokens);
+
+            if (phraseHits.length > 0 && phraseHits[0].form) {
+                // Specific conjugated forms found
+                let html = '<table class="lookup-table"><thead><tr><th>Form</th><th>Lemma</th><th>Tense / Person</th><th>Meaning</th></tr></thead><tbody>';
+                phraseHits.forEach(r => {
+                    html += `<tr>
+                        <td class="lookup-word greek-text">${escapeHTML(r.form)}</td>
+                        <td class="lookup-lemma greek-text">${escapeHTML(r.lemma)}</td>
+                        <td class="lookup-meaning" style="color:var(--text-2);font-size:0.85rem">${escapeHTML(r.info)}</td>
+                        <td class="lookup-meaning">${escapeHTML(r.meaning)}</td>
+                    </tr>`;
+                });
+                html += "</tbody></table>";
+                out.innerHTML = html;
+            } else {
+                // Fall back to word-by-word lookup with deduplication
+                const seen = new Set();
+                const results = [];
+                const add = (lemma, meaning) => {
+                    const base = tlBase(lemma);
+                    if (!seen.has(base)) { seen.add(base); results.push({ lemma, meaning }); }
+                };
+                // Include phrase hits that found lemmas (no person detected)
+                phraseHits.forEach(r => add(r.lemma, r.meaning));
+                // Also search word-by-word
+                for (const raw of words) lookupEnglishWord(raw).forEach(h => add(h.lemma, h.meaning));
+
+                if (results.length === 0) {
+                    out.innerHTML = '<p class="translate-placeholder">No matches found in your vocabulary.</p>';
+                    return;
+                }
+                let html = '<table class="lookup-table"><thead><tr><th>Greek</th><th>Meaning</th></tr></thead><tbody>';
+                results.forEach(r => {
+                    html += `<tr>
+                        <td class="lookup-word greek-text">${escapeHTML(r.lemma)}</td>
+                        <td class="lookup-meaning">${escapeHTML(r.meaning)}</td>
+                    </tr>`;
+                });
+                html += "</tbody></table>";
+                out.innerHTML = html;
             }
-            if (allMatches.size === 0) {
-                out.innerHTML = '<p class="translate-placeholder">No matches found in your vocabulary.</p>';
-                return;
-            }
-            let html = '<table class="lookup-table"><thead><tr><th>Greek</th><th>Meaning</th></tr></thead><tbody>';
-            allMatches.forEach((meaning, lemma) => {
-                html += `<tr>
-                    <td class="lookup-word greek-text">${escapeHTML(lemma)}</td>
-                    <td class="lookup-meaning">${escapeHTML(meaning)}</td>
-                </tr>`;
-            });
-            html += "</tbody></table>";
-            out.innerHTML = html;
         }
     }
 

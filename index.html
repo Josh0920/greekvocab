@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=9">
+    <link rel="stylesheet" href="styles.css?v=10">
 </head>
 <body>
     <div class="app-shell">
@@ -95,56 +95,32 @@
                 <div id="dict-results" class="dict-results"></div>
             </div>
 
-            <!-- TRANSLATE -->
+            <!-- TRANSLATE / WORD LOOKUP -->
             <div id="translate-view" class="view">
                 <div class="section-header">
                     <h2>Translate</h2>
-                    <p class="section-sub">English ↔ Koine Greek</p>
+                    <p class="section-sub">Word-by-word lookup from your vocabulary &amp; lexicons</p>
                 </div>
 
                 <div class="translate-wrap">
                     <!-- Input -->
                     <div class="translate-panel">
                         <div class="translate-panel-header">
-                            <span id="translate-from-label" class="translate-lang-label">English</span>
+                            <span class="translate-lang-label">Type Greek or English</span>
                             <button id="translate-clear-btn" class="translate-clear-btn" title="Clear">✕</button>
                         </div>
-                        <textarea id="translate-input" class="translate-textarea" placeholder="Type English or Greek here…" rows="5" spellcheck="false"></textarea>
+                        <textarea id="translate-input" class="translate-textarea" placeholder="e.g.  ἐν ἀρχῇ ἦν ὁ λόγος" rows="4" spellcheck="false"></textarea>
                     </div>
 
-                    <!-- Swap + Translate -->
+                    <!-- Look Up button -->
                     <div class="translate-controls">
-                        <button id="translate-swap-btn" class="translate-swap-btn" title="Swap languages">⇄</button>
-                        <button id="translate-btn" class="btn btn-primary translate-go-btn">Translate</button>
+                        <button id="translate-btn" class="btn btn-primary translate-go-btn">Look Up</button>
                     </div>
 
-                    <!-- Output -->
-                    <div class="translate-panel">
-                        <div class="translate-panel-header">
-                            <span id="translate-to-label" class="translate-lang-label">Koine Greek</span>
-                            <button id="translate-copy-btn" class="translate-clear-btn" title="Copy translation">⎘</button>
-                        </div>
-                        <div id="translate-output" class="translate-output">
-                            <span class="translate-placeholder">Translation will appear here</span>
-                        </div>
+                    <!-- Results -->
+                    <div id="translate-output" class="translate-output translate-output--table">
+                        <span class="translate-placeholder">Results will appear here</span>
                     </div>
-
-                    <!-- Status / error -->
-                    <div id="translate-status" class="translate-status hidden"></div>
-
-                    <!-- API Key settings -->
-                    <details class="translate-settings" id="translate-settings">
-                        <summary class="translate-settings-summary">⚙ API Settings</summary>
-                        <div class="translate-settings-body">
-                            <p class="translate-settings-note">Translation uses the Claude AI API. Enter your <a href="https://console.anthropic.com/" target="_blank">Anthropic API key</a> — it is saved only in your browser.</p>
-                            <div class="translate-key-row">
-                                <input type="password" id="translate-api-key" class="translate-key-input" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
-                                <button id="translate-key-toggle" class="btn btn-outline btn-sm">Show</button>
-                                <button id="translate-key-save" class="btn btn-primary btn-sm">Save</button>
-                            </div>
-                            <p id="translate-key-status" class="translate-key-msg"></p>
-                        </div>
-                    </details>
                 </div>
             </div>
 
@@ -408,6 +384,6 @@
     <script src="data.js?v=10"></script>
     <script src="verb-lexicon.js?v=10"></script>
     <script src="noun-lexicon.js?v=4"></script>
-    <script src="app.js?v=24"></script>
+    <script src="app.js?v=25"></script>
 </body>
 </html>

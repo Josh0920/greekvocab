@@ -2319,173 +2319,174 @@
 
     // ============================================================
     // ============================================================
-    // TRANSLATE
+    // TRANSLATE — word-by-word lookup from vocabulary & lexicons
     // ============================================================
-    const TRANSLATE_KEY_STORAGE = "koine-translate-api-key";
-    const TRANSLATE_DIR_STORAGE = "koine-translate-dir"; // "en-gr" or "gr-en"
 
-    // Greek Unicode ranges: Basic Greek + Greek Extended
     function containsGreek(text) {
         return /[\u0370-\u03FF\u1F00-\u1FFF]/.test(text);
     }
 
-    // Direction state: "en-gr" (English→Greek) or "gr-en" (Greek→English)
-    let translateDir = localStorage.getItem(TRANSLATE_DIR_STORAGE) || "en-gr";
-
-    function translateFromLabel() { return translateDir === "en-gr" ? "English" : "Koine Greek"; }
-    function translateToLabel()   { return translateDir === "en-gr" ? "Koine Greek" : "English"; }
-
-    function updateTranslateLabels() {
-        document.getElementById("translate-from-label").textContent = translateFromLabel();
-        document.getElementById("translate-to-label").textContent   = translateToLabel();
+    // Normalize: strip accents + diacritics, lowercase
+    function tlNorm(s) {
+        return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
     }
 
-    function setTranslateStatus(msg, type) {
-        const el = document.getElementById("translate-status");
-        if (!msg) { el.classList.add("hidden"); return; }
-        el.className = "translate-status " + (type || "info");
-        el.innerHTML = msg;
+    // Strip punctuation (Greek middle dot, comma, period, etc.)
+    function tlStrip(w) {
+        return w.replace(/[.,;:·!?'"()[\]{}\u00B7\u037E\u0387—–]/g, "").trim();
+    }
+
+    // Look up a single Greek word across all lexicons
+    function lookupGreekWord(raw) {
+        const word = tlStrip(raw);
+        if (!word) return null;
+        const q = tlNorm(word);
+
+        // 1. NOUN_LEXICON — lexical form (base before comma)
+        if (typeof NOUN_LEXICON !== "undefined") {
+            for (const key in NOUN_LEXICON) {
+                if (tlNorm(key.split(",")[0]) === q) {
+                    const n = NOUN_LEXICON[key];
+                    return { lemma: key, meaning: n.meaning };
+                }
+            }
+            // 2. NOUN_LEXICON — declined forms
+            for (const key in NOUN_LEXICON) {
+                const n = NOUN_LEXICON[key];
+                const src = n.forms || n.genderForms;
+                if (src) {
+                    for (const c in src) {
+                        if (src[c].some(f => tlNorm(f) === q)) {
+                            return { lemma: key, meaning: n.meaning };
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. VERB_LEXICON — lexical form
+        if (typeof VERB_LEXICON !== "undefined") {
+            for (const key in VERB_LEXICON) {
+                if (tlNorm(key) === q) {
+                    return { lemma: key, meaning: VERB_LEXICON[key].meaning };
+                }
+            }
+            // 4. VERB_LEXICON — conjugated/inflected forms
+            for (const key in VERB_LEXICON) {
+                const v = VERB_LEXICON[key];
+                let hit = false;
+                const scanArr = obj => { if (!obj || hit) return; for (const t in obj) if (Array.isArray(obj[t]) && obj[t].some(f => tlNorm(f) === q)) hit = true; };
+                scanArr(v.indicative);
+                scanArr(v.subjunctive);
+                scanArr(v.imperative);
+                if (!hit && v.infinitives) for (const t in v.infinitives) if (tlNorm(v.infinitives[t]) === q) hit = true;
+                if (!hit && v.participles) for (const pt in v.participles) for (const c in v.participles[pt]) if (v.participles[pt][c].some(f => tlNorm(f) === q)) hit = true;
+                if (hit) return { lemma: key, meaning: v.meaning };
+            }
+        }
+
+        // 5. Vocabulary cards — base term match
+        for (const catKey in data) {
+            for (const card of (data[catKey].cards || [])) {
+                const base = tlNorm(card.term.split(",")[0].split("/")[0].split("—")[0]);
+                if (base === q || tlNorm(card.term) === q) {
+                    return { lemma: card.term, meaning: card.definition };
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // Look up a single English word — return matching Greek entries
+    function lookupEnglishWord(raw) {
+        const word = tlStrip(raw);
+        if (!word || word.length < 2) return [];
+        const q = tlNorm(word);
+        const results = [];
+        const seen = new Set();
+
+        const add = (lemma, meaning) => {
+            if (!seen.has(lemma)) { seen.add(lemma); results.push({ lemma, meaning }); }
+        };
+
+        if (typeof VERB_LEXICON !== "undefined")
+            for (const key in VERB_LEXICON) if (tlNorm(VERB_LEXICON[key].meaning).split(/[\s,;/]+/).some(w => w === q)) add(key, VERB_LEXICON[key].meaning);
+        if (typeof NOUN_LEXICON !== "undefined")
+            for (const key in NOUN_LEXICON) if (tlNorm(NOUN_LEXICON[key].meaning).split(/[\s,;/]+/).some(w => w === q)) add(key, NOUN_LEXICON[key].meaning);
+        for (const catKey in data)
+            for (const card of (data[catKey].cards || []))
+                if (tlNorm(card.definition).split(/[\s,;/]+/).some(w => w === q)) add(card.term, card.definition);
+
+        return results;
     }
 
     function bindTranslate() {
-        const apiKeyInput = document.getElementById("translate-api-key");
-        const keyStatus   = document.getElementById("translate-key-status");
-
-        // Load saved key
-        const saved = localStorage.getItem(TRANSLATE_KEY_STORAGE) || "";
-        if (saved) apiKeyInput.value = saved;
-
-        // Restore direction labels
-        updateTranslateLabels();
-
-        // Auto-detect language as user types and update from-label
-        document.getElementById("translate-input").addEventListener("input", () => {
-            const text = document.getElementById("translate-input").value;
-            if (text.trim()) {
-                const isGreek = containsGreek(text);
-                translateDir = isGreek ? "gr-en" : "en-gr";
-                localStorage.setItem(TRANSLATE_DIR_STORAGE, translateDir);
-                updateTranslateLabels();
-            }
-        });
-
-        // Clear input
         document.getElementById("translate-clear-btn").addEventListener("click", () => {
             document.getElementById("translate-input").value = "";
-            document.getElementById("translate-output").innerHTML = '<span class="translate-placeholder">Translation will appear here</span>';
-            setTranslateStatus("", "");
+            document.getElementById("translate-output").innerHTML = '<span class="translate-placeholder">Results will appear here</span>';
         });
-
-        // Copy output
-        document.getElementById("translate-copy-btn").addEventListener("click", () => {
-            const text = document.getElementById("translate-output").textContent.trim();
-            if (text && text !== "Translation will appear here") {
-                navigator.clipboard.writeText(text).then(() => {
-                    setTranslateStatus("Copied to clipboard!", "info");
-                    setTimeout(() => setTranslateStatus("", ""), 1800);
-                });
-            }
-        });
-
-        // Swap direction
-        document.getElementById("translate-swap-btn").addEventListener("click", () => {
-            const outText = document.getElementById("translate-output").textContent.trim();
-            const isPlaceholder = document.getElementById("translate-output").querySelector(".translate-placeholder");
-            // Flip direction
-            translateDir = translateDir === "en-gr" ? "gr-en" : "en-gr";
-            localStorage.setItem(TRANSLATE_DIR_STORAGE, translateDir);
-            updateTranslateLabels();
-            // Move output text to input if there's a real translation
-            if (outText && !isPlaceholder) {
-                document.getElementById("translate-input").value = outText;
-                document.getElementById("translate-output").innerHTML = '<span class="translate-placeholder">Translation will appear here</span>';
-            }
-        });
-
-        // Translate button
-        document.getElementById("translate-btn").addEventListener("click", doTranslate);
+        document.getElementById("translate-btn").addEventListener("click", doLookup);
         document.getElementById("translate-input").addEventListener("keydown", e => {
-            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) doTranslate();
-        });
-
-        // API key toggle visibility
-        document.getElementById("translate-key-toggle").addEventListener("click", () => {
-            const tog = document.getElementById("translate-key-toggle");
-            if (apiKeyInput.type === "password") {
-                apiKeyInput.type = "text";
-                tog.textContent = "Hide";
-            } else {
-                apiKeyInput.type = "password";
-                tog.textContent = "Show";
-            }
-        });
-
-        // Save API key
-        document.getElementById("translate-key-save").addEventListener("click", () => {
-            const key = apiKeyInput.value.trim();
-            if (!key) { keyStatus.textContent = "Enter a key first."; keyStatus.className = "translate-key-msg error"; return; }
-            localStorage.setItem(TRANSLATE_KEY_STORAGE, key);
-            keyStatus.textContent = "Key saved!";
-            keyStatus.className = "translate-key-msg";
-            setTimeout(() => { keyStatus.textContent = ""; }, 2000);
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) doLookup();
         });
     }
 
-    async function doTranslate() {
+    function doLookup() {
         const input = document.getElementById("translate-input").value.trim();
+        const out   = document.getElementById("translate-output");
         if (!input) return;
 
-        const apiKey = localStorage.getItem(TRANSLATE_KEY_STORAGE) || "";
-        if (!apiKey) {
-            setTranslateStatus("⚠ No API key saved. Open <strong>⚙ API Settings</strong> below and save your Anthropic API key.", "error");
-            document.getElementById("translate-settings").open = true;
-            return;
-        }
+        const isGreek = containsGreek(input);
+        const words   = input.split(/\s+/).filter(Boolean);
 
-        const btn = document.getElementById("translate-btn");
-        btn.disabled = true;
-        btn.textContent = "Translating…";
-        setTranslateStatus('<span class="translate-loading">↻</span> Translating…', "info");
-        document.getElementById("translate-output").innerHTML = '<span class="translate-placeholder">Translating…</span>';
-
-        const isToGreek = translateDir === "en-gr";
-        const systemPrompt = isToGreek
-            ? "You are an expert Koine Greek translator. The user will give you English text. Translate it into Koine Greek using vocabulary, grammar, and idiom consistent with the Greek New Testament and Septuagint. Respond with ONLY the Greek translation — no transliteration, no explanation, no commentary."
-            : "You are an expert Koine Greek translator. The user will give you Koine Greek text. Translate it into clear, natural English. Respond with ONLY the English translation — no explanation, no commentary, no original Greek repeated back.";
-
-        try {
-            const resp = await fetch("https://api.anthropic.com/v1/messages", {
-                method: "POST",
-                headers: {
-                    "x-api-key": apiKey,
-                    "anthropic-version": "2023-06-01",
-                    "anthropic-dangerous-direct-browser-access": "true",
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify({
-                    model: "claude-haiku-4-5",
-                    max_tokens: 1024,
-                    system: systemPrompt,
-                    messages: [{ role: "user", content: input }],
-                }),
-            });
-
-            if (!resp.ok) {
-                const err = await resp.json().catch(() => ({}));
-                const msg = err.error?.message || `API error ${resp.status}`;
-                throw new Error(msg);
+        if (isGreek) {
+            // Word-by-word Greek → English table
+            let found = 0;
+            let html = '<table class="lookup-table"><thead><tr><th>Word</th><th>Lemma</th><th>Meaning</th></tr></thead><tbody>';
+            for (const raw of words) {
+                const display = tlStrip(raw);
+                if (!display) continue;
+                const result = lookupGreekWord(raw);
+                if (result) {
+                    found++;
+                    html += `<tr>
+                        <td class="lookup-word greek-text">${escapeHTML(display)}</td>
+                        <td class="lookup-lemma greek-text">${escapeHTML(result.lemma)}</td>
+                        <td class="lookup-meaning">${escapeHTML(result.meaning)}</td>
+                    </tr>`;
+                } else {
+                    html += `<tr class="lookup-miss">
+                        <td class="lookup-word greek-text">${escapeHTML(display)}</td>
+                        <td class="lookup-lemma">—</td>
+                        <td class="lookup-meaning lookup-not-found">not in vocabulary</td>
+                    </tr>`;
+                }
             }
+            html += "</tbody></table>";
+            if (found === 0) html = '<p class="translate-placeholder">No words found in your vocabulary.</p>';
+            out.innerHTML = html;
 
-            const json = await resp.json();
-            const translation = json.content?.[0]?.text?.trim() || "";
-            document.getElementById("translate-output").textContent = translation;
-            setTranslateStatus("", "");
-        } catch (e) {
-            document.getElementById("translate-output").innerHTML = '<span class="translate-placeholder">Translation failed</span>';
-            setTranslateStatus("⚠ " + escapeHTML(e.message), "error");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Translate";
+        } else {
+            // English → Greek: search each word and collect matching entries
+            const allMatches = new Map(); // lemma → meaning
+            for (const raw of words) {
+                const hits = lookupEnglishWord(raw);
+                hits.forEach(h => allMatches.set(h.lemma, h.meaning));
+            }
+            if (allMatches.size === 0) {
+                out.innerHTML = '<p class="translate-placeholder">No matches found in your vocabulary.</p>';
+                return;
+            }
+            let html = '<table class="lookup-table"><thead><tr><th>Greek</th><th>Meaning</th></tr></thead><tbody>';
+            allMatches.forEach((meaning, lemma) => {
+                html += `<tr>
+                    <td class="lookup-word greek-text">${escapeHTML(lemma)}</td>
+                    <td class="lookup-meaning">${escapeHTML(meaning)}</td>
+                </tr>`;
+            });
+            html += "</tbody></table>";
+            out.innerHTML = html;
         }
     }
 

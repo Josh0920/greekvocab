@@ -1195,7 +1195,7 @@ main {
     padding: 2rem 0;
 }
 
-/* ---- TRANSLATE ---- */
+/* ---- TRANSLATE / WORD LOOKUP ---- */
 .translate-wrap {
     max-width: 680px;
     margin: 0 auto;
@@ -1222,7 +1222,7 @@ main {
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-2);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     text-transform: uppercase;
 }
 .translate-clear-btn {
@@ -1247,109 +1247,56 @@ main {
     resize: vertical;
     background: transparent;
     color: var(--text);
-    min-height: 110px;
+    min-height: 100px;
 }
 .translate-textarea::placeholder { color: var(--text-3); font-family: var(--font-ui); font-size: 0.95rem; }
-.translate-output {
-    padding: 14px 16px;
-    font-family: var(--font-serif);
-    font-size: 1.05rem;
-    line-height: 1.6;
-    color: var(--text);
-    min-height: 80px;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-.translate-placeholder { color: var(--text-3); font-family: var(--font-ui); font-size: 0.95rem; font-style: italic; }
 .translate-controls {
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 1rem;
 }
-.translate-swap-btn {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 50%;
-    width: 40px; height: 40px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    color: var(--text-2);
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, border-color 0.15s;
-    box-shadow: var(--shadow-sm);
-}
-.translate-swap-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
-.translate-go-btn { min-width: 130px; }
-.translate-status {
-    padding: 10px 16px;
-    border-radius: var(--radius);
-    font-size: 0.9rem;
-    text-align: center;
-}
-.translate-status.error  { background: var(--error-light);   color: var(--error);   }
-.translate-status.info   { background: var(--accent-light);  color: var(--accent);  }
-.translate-status.hidden { display: none; }
-.translate-loading { display: inline-block; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.translate-settings {
+.translate-go-btn { min-width: 140px; }
+.translate-output--table {
     background: var(--surface);
     border: 1.5px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 0;
+    min-height: 60px;
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
 }
-.translate-settings-summary {
-    cursor: pointer;
-    padding: 11px 16px;
-    font-size: 0.88rem;
-    font-weight: 500;
+.translate-placeholder {
+    display: block;
+    padding: 1.5rem;
+    color: var(--text-3);
+    font-style: italic;
+    font-size: 0.95rem;
+    text-align: center;
+}
+.lookup-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+.lookup-table thead tr {
+    background: var(--surface-alt);
+    border-bottom: 1.5px solid var(--border);
+}
+.lookup-table th {
+    padding: 8px 14px;
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 600;
     color: var(--text-2);
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    user-select: none;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
-.translate-settings-summary::-webkit-details-marker { display: none; }
-.translate-settings-summary:hover { color: var(--text); background: var(--surface-alt); }
-.translate-settings-body {
-    padding: 12px 16px 16px;
-    border-top: 1px solid var(--border-light);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.translate-settings-note {
-    font-size: 0.85rem;
-    color: var(--text-2);
-    line-height: 1.5;
-}
-.translate-settings-note a { color: var(--accent); }
-.translate-key-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-.translate-key-input {
-    flex: 1;
-    font-family: monospace;
-    font-size: 0.9rem;
-    padding: 8px 12px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-}
-.translate-key-input:focus { border-color: var(--accent); }
-.translate-key-msg {
-    font-size: 0.82rem;
-    color: var(--success);
-    min-height: 1em;
-}
-.translate-key-msg.error { color: var(--error); }
+.lookup-table tbody tr { border-bottom: 1px solid var(--border-light); }
+.lookup-table tbody tr:last-child { border-bottom: none; }
+.lookup-table tbody tr:hover { background: var(--surface-alt); }
+.lookup-miss { opacity: 0.55; }
+.lookup-word  { padding: 9px 14px; font-size: 1rem; font-weight: 500; white-space: nowrap; }
+.lookup-lemma { padding: 9px 14px; color: var(--text-2); white-space: nowrap; }
+.lookup-meaning { padding: 9px 14px; color: var(--text); }
+.lookup-not-found { color: var(--text-3); font-style: italic; }
 
 /* ---- RESPONSIVE ---- */
 @media (max-width: 700px) {

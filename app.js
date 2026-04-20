@@ -2398,11 +2398,24 @@
         return null;
     }
 
+    // Words too generic to be useful English search terms (appear in almost every definition)
+    const EN_STOP_WORDS = new Set([
+        "i","am","is","are","be","been","being","was","were",
+        "a","an","the","to","of","in","on","at","by","for",
+        "with","from","as","it","its","not","no","nor",
+        "my","your","his","her","our","their","one","two",
+        "he","she","we","they","do","did","has","have","had",
+        "will","would","can","could","may","might","shall","should",
+        "or","and","but","so","if","up","out","into","unto",
+        "this","that","which","who","what","how","when","where",
+    ]);
+
     // Look up a single English word — return matching Greek entries
     function lookupEnglishWord(raw) {
         const word = tlStrip(raw);
         if (!word || word.length < 2) return [];
         const q = tlNorm(word);
+        if (EN_STOP_WORDS.has(q)) return [];   // skip generic words
         const results = [];
         const seen = new Set();
 

@@ -27,7 +27,7 @@
     let paraMode = null; // "multiple-choice" or "fill-blank"
 
     const STORAGE_KEY = "koine-greek-data";
-    const PARADIGM_CATS = ["verbs", "nouns", "pronouns", "participles"];
+    const PARADIGM_CATS = ["verbs", "nouns", "adjectives", "pronouns", "participles"];
 
     // Stored study options (read from checkboxes before view switch)
     let studyOpts = { shuffle: true, reverse: false, blankAll: false };
@@ -363,7 +363,7 @@
 
                 if (tables.length === 0) return;
                 startParadigmQuizDirect(tables);
-            } else if ((currentCategory === "nouns" || currentCategory === "pronouns") && typeof NOUN_LEXICON !== "undefined") {
+            } else if ((currentCategory === "nouns" || currentCategory === "adjectives" || currentCategory === "pronouns") && typeof NOUN_LEXICON !== "undefined") {
                 // NOUN MODE: build tables from selected words, filtered by type
                 const checkedTypes = [...document.querySelectorAll("#noun-type-list input[type='checkbox']:checked")]
                     .map(cb => cb.dataset.type);
@@ -515,7 +515,7 @@
         if (typeof NOUN_LEXICON !== "undefined") {
             for (const key in NOUN_LEXICON) seen.add(getNounTypeLabel(NOUN_LEXICON[key]));
         }
-        const order = [
+        const allTypes = [
             { name: "Article",         group: "Pronouns & Articles" },
             { name: "Pronoun",         group: "Pronouns & Articles" },
             { name: "Adjective",       group: "Adjectives" },
@@ -524,7 +524,17 @@
             { name: "3rd Declension",  group: "Nouns" },
             { name: "Other",           group: "Nouns" },
         ];
-        return order.filter(o => seen.has(o.name));
+        // Show only types relevant to the current category
+        const nounOnly      = new Set(["1st Declension", "2nd Declension", "3rd Declension", "Other"]);
+        const adjectiveOnly = new Set(["Adjective"]);
+        const pronounOnly   = new Set(["Article", "Pronoun"]);
+        return allTypes.filter(o => {
+            if (!seen.has(o.name)) return false;
+            if (currentCategory === "nouns")      return nounOnly.has(o.name);
+            if (currentCategory === "adjectives") return adjectiveOnly.has(o.name);
+            if (currentCategory === "pronouns")   return pronounOnly.has(o.name);
+            return true;
+        });
     }
 
     function buildNounTableForEntry(nounKey) {
@@ -823,7 +833,7 @@
                 `;
                 list.appendChild(label);
             });
-        } else if ((currentCategory === "nouns" || currentCategory === "pronouns") && typeof NOUN_LEXICON !== "undefined") {
+        } else if ((currentCategory === "nouns" || currentCategory === "adjectives" || currentCategory === "pronouns") && typeof NOUN_LEXICON !== "undefined") {
             // NOUN MODE: show type filter panel + noun picker panel
             layout.classList.add("two-col");
             verbSection.classList.add("hidden");

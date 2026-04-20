@@ -2375,7 +2375,7 @@
     const EN_STOP_WORDS = new Set([
         "i","am","is","are","be","been","being","was","were",
         "a","an","the","to","of","in","on","at","by","for",
-        "with","from","as","it","its","not","no","nor",
+        "from","as","it","its","not","no","nor",
         "my","your","his","her","our","their","one","two",
         "he","she","we","they","do","did","has","have","had",
         "will","would","can","could","may","might","shall","should",
@@ -2437,7 +2437,7 @@
         // Find main verb token (skip pronouns, stop words, auxiliaries)
         const skip = new Set([...EN_STOP_WORDS, ...Object.keys(EN_PERSON), "will","have","has","had","not","never"]);
         const mainTok = tokens.find(t => !skip.has(t) && t.length > 1);
-        if (!mainTok || typeof VERB_LEXICON === "undefined") return [];
+        if (!mainTok || typeof VERB_LEXICON === "undefined") return { results: [], usedVerbToken: null };
 
         const { base, isPast } = stemEnglishVerb(mainTok);
         const tenseType = hasFuture ? "future" : hasPerfect ? "perfect" : isPast ? "aorist" : "present";
@@ -2463,7 +2463,7 @@
                 results.push({ lemma: key, meaning: v.meaning });
             }
         }
-        return results;
+        return { results, usedVerbToken: mainTok };
     }
 
     // ---- English word lookup (single word, no phrase awareness) ----
@@ -2542,7 +2542,7 @@
         } else {
             // English → try phrase-aware lookup first
             const tokens = words.map(w => tlStrip(w).toLowerCase());
-            const phraseHits = lookupEnglishPhrase(tokens);
+            const { results: phraseHits, usedVerbToken } = lookupEnglishPhrase(tokens);
 
             if (phraseHits.length > 0 && phraseHits[0].form) {
                 // Specific conjugated forms found — show verb table
@@ -2566,6 +2566,9 @@
                     if (!extraSeen.has(base)) { extraSeen.add(base); extras.push({ lemma, meaning }); }
                 };
                 for (const raw of words) {
+                    const tok = tlStrip(raw).toLowerCase();
+                    if (EN_PERSON[tok] !== undefined) continue;   // skip subject pronouns (you, I, he…)
+                    if (usedVerbToken && tok === usedVerbToken) continue; // skip the main verb token
                     lookupEnglishWord(raw).forEach(h => addExtra(h.lemma, h.meaning));
                 }
                 if (extras.length > 0) {

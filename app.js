@@ -339,6 +339,11 @@
             else setupParaTable();
         });
         document.getElementById("para-start-btn").addEventListener("click", () => {
+            // Read the "blank all" toggle that lives in the paradigm select view
+            if (paraMode === "fill-blank") {
+                studyOpts.blankAll = document.getElementById("para-blank-all").checked;
+            }
+
             if (currentCategory === "verbs") {
                 // Build tables from selected tense types × selected verbs
                 const checkedTypes = [...document.querySelectorAll("#para-tense-list input[type='checkbox']:checked")]
@@ -759,6 +764,16 @@
     function showParadigmSelect() {
         const catName = data[currentCategory].name;
         document.getElementById("para-select-title").textContent = `Select ${catName} Tables`;
+
+        // Show "blank all cells" toggle only for fill-in-the-blank mode
+        const blankWrap = document.getElementById("para-blank-all-wrap");
+        if (paraMode === "fill-blank") {
+            blankWrap.classList.remove("hidden");
+            // Sync with whatever was checked in the study-view option
+            document.getElementById("para-blank-all").checked = studyOpts.blankAll;
+        } else {
+            blankWrap.classList.add("hidden");
+        }
         const layout = document.querySelector(".para-select-layout");
         const verbSection = document.getElementById("verb-select-section");
         const tenseSection = document.getElementById("para-tense-section");

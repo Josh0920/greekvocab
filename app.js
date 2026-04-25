@@ -289,7 +289,8 @@
             b.addEventListener("click", () => startStudy(b.dataset.mode))
         );
     }
-    function startStudy(mode) {
+    function startStudy(mode) { try { _startStudy(mode); } catch(e) { alert("Error starting game mode. Please refresh the page.\n\n" + e.message); } }
+    function _startStudy(mode) {
         currentMode = mode;
         // Store options before switching views (fixes checkbox bug)
         studyOpts.shuffle = document.getElementById("opt-shuffle").checked;
@@ -1467,6 +1468,8 @@
     // MANAGE CARDS
     // ============================================================
     function bindManage() {
+        // Guard: if manage elements don't exist, skip silently so init() continues
+        if (!document.getElementById("add-card-btn")) return;
         document.getElementById("add-card-btn").addEventListener("click", addCard);
         document.getElementById("import-btn").addEventListener("click", bulkImport);
         document.getElementById("export-btn").addEventListener("click", bulkExport);

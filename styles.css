@@ -948,6 +948,35 @@ main {
 
 .file-label { cursor: pointer; }
 
+.reset-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.reset-section h3 {
+    font-size: 0.92rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+.btn-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+    align-self: flex-start;
+}
+.btn-danger:hover { background: #fca5a5; border-color: #f87171; }
+
 .manage-main h3 { font-size: 0.95rem; margin-bottom: 8px; }
 .count-badge {
     display: inline-block;
@@ -1343,6 +1372,8 @@ main {
 
 /* ---- RESPONSIVE ---- */
 @media (max-width: 700px) {
+
+    /* -- Header -- */
     .header-inner {
         padding: 0.5rem 0.75rem 0.4rem;
         flex-direction: column;
@@ -1362,14 +1393,91 @@ main {
         padding: 5px 4px;
         min-width: 0;
     }
-    main { padding: 1.25rem 1rem; }
-    .manage-layout { grid-template-columns: 1fr; }
-    .category-grid { grid-template-columns: 1fr 1fr; }
-    .mode-grid { grid-template-columns: 1fr 1fr; }
-    .flashcard { height: 230px; }
-    .match-area { grid-template-columns: 1fr; }
+
+    /* -- Layout -- */
+    main { padding: 1rem 0.85rem; }
+    .section-header { margin-bottom: 1rem; }
+    .section-header h2 { font-size: 1.2rem; }
+
+    /* -- Category & Mode grids -- */
+    .category-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .category-card { padding: 1rem 0.75rem; }
+    .mode-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .mode-card { padding: 0.85rem 0.75rem; }
+
+    /* -- Chapter filter -- */
+    .chapter-filter { padding: 0.75rem; }
+    .ch-chip { font-size: 0.72rem; padding: 0.22rem 0.45rem; }
+
+    /* -- Study options -- */
+    .study-opts { flex-wrap: wrap; gap: 0.6rem; font-size: 0.82rem; }
+
+    /* -- Flashcard -- */
+    .flashcard { height: 200px; max-width: 100%; }
+    .flashcard-face p { font-size: 1.2rem; }
+    .flashcard-face { padding: 1.25rem; }
+    .fc-nav { gap: 6px; }
+    .fc-nav .btn { padding: 7px 12px; font-size: 0.82rem; }
+
+    /* -- Quiz body -- */
+    .quiz-body { max-width: 100%; }
+    .quiz-prompt { font-size: 1.05rem; padding: 1rem; }
+    .quiz-sub { font-size: 0.9rem; }
+
+    /* -- Multiple choice -- */
+    .mc-option { font-size: 0.88rem; padding: 10px 12px; }
+
+    /* -- Fill in blank -- */
     .fib-row { flex-direction: column; }
-    .para-table { font-size: 0.82rem; }
-    .para-table td, .para-table th { padding: 8px 6px; }
+    .fib-input { font-size: 0.95rem; }
+
+    /* -- True/False -- */
+    .tf-row { gap: 8px; }
+    .btn-tf { min-width: 90px; padding: 9px 14px; font-size: 0.95rem; }
+
+    /* -- Matching -- */
+    .match-area { grid-template-columns: 1fr; gap: 0.75rem; }
+    .match-item { font-size: 0.88rem; padding: 8px 10px; }
+
+    /* -- Paradigm table -- */
+    .paradigm-body { max-width: 100%; }
+    .para-table { font-size: 0.75rem; }
+    .para-table td, .para-table th { padding: 6px 5px; min-width: 55px; }
+
+    /* -- Paradigm select -- */
     .para-select-layout.two-col { grid-template-columns: 1fr; }
+    .para-select-list { max-height: 220px; }
+    .para-blank-all-wrap { margin-bottom: 8px; }
+    .para-blank-all-label { font-size: 0.85rem; }
+    .para-start-btn { max-width: 100%; }
+
+    /* -- Results -- */
+    .results-card { padding: 1.5rem 1rem; margin: 1rem 0; }
+    .results-pct { font-size: 2.25rem; }
+
+    /* -- Manage -- */
+    .manage-layout { grid-template-columns: 1fr; }
+    .manage-sidebar select,
+    .manage-sidebar input[type="text"],
+    .manage-sidebar textarea { font-size: 0.95rem; padding: 10px 12px; }
+    .btn-group { flex-wrap: wrap; }
+    .btn-group .btn { flex: 1; justify-content: center; min-width: 70px; }
+    .btn-danger { width: 100%; justify-content: center; }
+
+    /* -- Browse -- */
+    .browse-term { min-width: 100px; font-size: 0.9rem; }
+    .browse-def { font-size: 0.82rem; }
+    .browse-chapter { font-size: 0.7rem; }
+
+    /* -- Dictionary -- */
+    .dict-search-wrap { margin-bottom: 1rem; }
+    .dict-term { font-size: 1.1rem; }
+    .dict-conj-grid { grid-template-columns: 1fr; }
+    .dict-participles { grid-template-columns: 1fr; }
+
+    /* -- Translate -- */
+    .translate-textarea { font-size: 0.95rem; min-height: 80px; padding: 10px 12px; }
+    .lookup-table { font-size: 0.82rem; }
+    .lookup-table th { padding: 6px 8px; font-size: 0.7rem; }
+    .lookup-word, .lookup-lemma, .lookup-meaning, .lookup-english { padding: 7px 8px; white-space: normal; }
 }

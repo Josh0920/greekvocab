@@ -1475,6 +1475,12 @@
         ["card-term", "card-definition", "card-notes"].forEach(id =>
             document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") addCard(); })
         );
+        document.getElementById("reset-defaults-btn").addEventListener("click", () => {
+            if (confirm("Reset all cards to the original defaults? Any cards you've added or deleted will be lost.")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        });
     }
     function getManageCategory() { return document.getElementById("manage-category").value; }
     function addCard() {

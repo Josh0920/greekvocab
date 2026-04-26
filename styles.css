@@ -32,12 +32,18 @@
     --shadow-lg: 0 4px 16px rgba(0,0,0,0.1);
 }
 
+html {
+    overflow-x: hidden;
+    max-width: 100%;
+}
 body {
     font-family: var(--font-ui);
     background: var(--bg);
     color: var(--text);
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 /* ---- HEADER ---- */
@@ -1382,7 +1388,9 @@ main {
         flex-direction: column;
         align-items: center;
         gap: 0.2rem;
-        padding: 0.4rem 0.5rem 0.35rem;
+        padding: 0.4rem 0.75rem 0.35rem;
+        width: 100%;
+        box-sizing: border-box;
     }
     .logo { font-size: 1rem; }
     #main-nav {
@@ -1394,9 +1402,10 @@ main {
         flex: 1;
         text-align: center;
         font-size: 0.8rem;
-        padding: 5px 2px;
+        padding: 5px 4px;
         min-width: 0;
         white-space: nowrap;
+        overflow: hidden;
     }
 
     /* -- Layout -- */
@@ -1475,14 +1484,31 @@ main {
     .browse-chapter { font-size: 0.7rem; }
 
     /* -- Dictionary -- */
-    .dict-search-wrap { margin-bottom: 1rem; }
+    .dict-search-wrap { margin-bottom: 1rem; max-width: 100%; }
     .dict-term { font-size: 1.1rem; }
-    .dict-conj-grid { grid-template-columns: 1fr; }
-    .dict-participles { grid-template-columns: 1fr; }
+    .dict-results { max-width: 100%; }
+    .dict-card { padding: 0.85rem; }
+    .dict-card-header { flex-wrap: wrap; gap: 0.4rem; }
+    .dict-conj-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+    .dict-participles { grid-template-columns: 1fr; gap: 0.5rem; }
+    .dict-conjugations { overflow-x: auto; }
+    .dict-conj-block table { font-size: 0.8rem; width: 100%; }
+    .dict-conj-block td { padding: 3px 6px; }
+    .dict-ptcp-table { font-size: 0.72rem; }
+    .dict-ptcp-table th, .dict-ptcp-table td { padding: 3px 4px; }
+    .dict-conj-block--wide { overflow-x: auto; }
 
     /* -- Translate -- */
     .translate-textarea { font-size: 0.95rem; min-height: 80px; padding: 10px 12px; }
-    .lookup-table { font-size: 0.82rem; }
+    .translate-output--table { overflow-x: auto; }
+    .lookup-table { font-size: 0.82rem; min-width: 0; }
     .lookup-table th { padding: 6px 8px; font-size: 0.7rem; }
     .lookup-word, .lookup-lemma, .lookup-meaning, .lookup-english { padding: 7px 8px; white-space: normal; }
+
+    /* -- General overflow guard -- */
+    main { max-width: 100%; overflow-x: hidden; }
+    .view { max-width: 100%; }
+    .manage-main { overflow-x: hidden; }
+    .card-list-item { max-width: 100%; }
+    .card-list-item .card-def { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45vw; }
 }
